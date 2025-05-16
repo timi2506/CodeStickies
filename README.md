@@ -1,3 +1,6 @@
+<img width="1680" alt="image" src="https://github.com/user-attachments/assets/105d20dd-2913-4973-8b8b-ed42544cb8ab" />
+
+
 # CodeStickies
 
 ## What is CodeStickies?
