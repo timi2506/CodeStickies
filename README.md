@@ -7,3 +7,6 @@ It has a ton of features! Every Release should include a "Get_Started.stickies" 
 
 ## Where to Download? 
 [Here](https://github.com/timi2506/CodeStickies/releases)
+
+## Requirements
+macOS 15.0 or higher on an Apple Silicon or Intel based Mac
