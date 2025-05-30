@@ -1,0 +1,589 @@
+//
+//  CodeStickiesApp.swift
+//  CodeStickies
+//
+//  Created by Tim on 15.05.25.
+//
+
+import SwiftUI
+import LanguageSupport
+import UniformTypeIdentifiers
+
+@main
+struct CodeStickiesApp: App {
+    @Environment(\.dismissWindow) private var dismissWindow
+    @Environment(\.openWindow) private var openWindow
+    @AppStorage("floatAboveWindows") var floatAboveWindows = true
+    init() {
+        NSWindow.swizzleCanBecomeKey()
+        Task {
+            await CodeRunner.shared.checkSwift()
+            CodeRunner.shared.checkPackagify()
+        }
+    }
+    @StateObject var notesManager = NotesManager.shared
+    @State var exportNotes = false
+    @State var importNotes = false
+    @State private var document: StickiesDocument?
+    @AppStorage("showInMenuBar") var showInMenuBar = true
+    var body: some Scene {
+        WindowGroup(id: "main") {
+            NavigationStack {
+                Form {
+                    Section("Options") {
+                        ScrollView(.horizontal) {
+                            HStack {
+                                Button("Clear All Notes") {
+                                    if confirm(description: "This action cannot be undone") {
+                                        for note in notesManager.notes {
+                                            dismissWindow(id: "note", value: note.id)
+                                        }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                            notesManager.notes = []
+                                        }
+                                    }
+                                }
+                                Button("Close All Notes") {
+                                    for note in notesManager.notes {
+                                        dismissWindow(id: "note", value: note.id)
+                                    }
+                                }
+                                Button("Open All Notes") {
+                                    for note in notesManager.notes {
+                                        dismissWindow(id: "note", value: note.id)
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                        for note in notesManager.notes {
+                                            openWindow(id: "note", value: note.id)
+                                        }
+                                    }
+                                }
+                                Button("Export Notes") {
+                                    let encoder = JSONEncoder()
+                                    encoder.outputFormatting = .prettyPrinted
+                                    if let encoded = try? encoder.encode(notesManager.notes) {
+                                        if let jsonString = String(data: encoded, encoding: .utf8) {
+                                            document = StickiesDocument(content: jsonString)
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
+                                                exportNotes = true
+                                            }
+                                        }
+                                    }
+                                }
+                                Button("Import Notes") {
+                                    importNotes = true
+                                }
+                            }
+                        }
+                        Toggle("Show Menu Bar Item", isOn: $showInMenuBar)
+                    }
+                    Section("Notes") {
+                        ForEach(notesManager.notes, id: \.id) { note in
+                            Button(action: { openWindow(id: "note", value: note.id) }) {
+                                HStack {
+                                    LazyVStack(alignment: .leading) {
+                                        Text(note.title ?? "Untitled Note")
+                                        Text(note.text)
+                                            .multilineTextAlignment(.leading)
+                                            .foregroundStyle(.gray)
+                                            .font(.caption)
+                                            .lineLimit(2)
+                                    }
+                                    Spacer()
+                                    Text(note.language.config.name.uppercased())
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button("Delete", systemImage: "trash") {
+                                    if confirm("Are you sure you want to delete \"\(note.title ?? "Untitled Note")\"", description: "This action cannot be undone") {
+                                        dismissWindow(id: "note", value: note.id)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
+                                            notesManager.deleteNote(with: note.id)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+                .formStyle(.grouped)
+                .toolbar {
+                    Button(action: {
+                        createAndOpenNote()
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                }
+                .scrollIndicators(.never)
+                .navigationTitle("Main Window")
+            }
+            .fileImporter(isPresented: $importNotes, allowedContentTypes: [stickiesType], onCompletion: { result in
+                switch result {
+                case .success(let url):
+                    importStickies(from: url)
+                case .failure:
+                    alert("Error Importing", description: "An Error occured importing your Notes", style: .critical)
+                }
+            })
+            .fileExporter(
+                isPresented: $exportNotes,
+                document: document,
+                contentType: stickiesType,
+                defaultFilename: "Stickies_Export_\(DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none).replacingOccurrences(of: "/", with: "-"))"
+            ) { result in
+                switch result {
+                case .success(let url):
+                    alert("Success", description: "Successfully exported Notes", style: .informational)
+                    document = nil
+                case .failure(let error):
+                    alert("Error", description: "An Error occured exporting Notes", style: .informational)
+                    document = nil
+                }
+            }
+            .onOpenURL(perform: { url in
+                importStickies(from: url)
+            })
+        }
+        .windowIdealSize(.fitToContent)
+        WindowGroup(id: "note", for: UUID.self) { uuid in
+            NavigationStack {
+                VStack {
+                    if let unwrappedUUID = uuid.wrappedValue {
+                        if let binding = notesManager.binding(for: unwrappedUUID) {
+                            ContentView(note: binding)
+                        } else {
+                            ContentView(note: createNote(with: unwrappedUUID))
+                        }
+                    }
+                }
+                
+            }
+            .gesture(WindowDragGesture())
+            .onWindowAppear { window in
+                guard let w = window else { return }
+                w.styleMask.remove([.miniaturizable])
+                w.standardWindowButton(.closeButton)?.isHidden = true
+                w.standardWindowButton(.miniaturizeButton)?.isHidden = true
+                w.standardWindowButton(.zoomButton)?.isHidden = true
+                w.styleMask.remove(.titled)
+                w.styleMask.remove(.closable)
+                w.styleMask.remove(.miniaturizable)
+                w.styleMask.insert(.borderless)
+                w.styleMask.insert(.resizable)
+                w.backgroundColor = .clear
+                w.isMovableByWindowBackground = true
+            }
+        }
+        // macOS 15.0, iOS unavailable, tvOS unavailable, watchOS unavailable, visionOS unavailable
+        .windowManagerRole(.associated)
+        // iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0
+        .windowLevel(floatAboveWindows ? .floating : .normal)
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .commands {
+            CommandGroup(after: .windowArrangement){
+                Toggle("Float on Top", isOn: $floatAboveWindows)
+                    .keyboardShortcut("F", modifiers: [.command, .option])
+            }
+            CommandGroup(replacing: .newItem, addition: {
+                Button("New Note") {
+                    createAndOpenNote()
+                }
+                .keyboardShortcut("N", modifiers: .command)
+            })
+            CommandGroup(after: .windowArrangement, addition: {
+                Button("Open Note Manager") {
+                    openWindow(id: "main")
+                }
+                .keyboardShortcut("N", modifiers: [.command, .option])
+            })
+        }
+        .handlesExternalEvents(matching: [])
+        MenuBarExtra(isInserted: $showInMenuBar, content: {
+            NavigationStack {
+                Form {
+                    Button("Add Note", systemImage: "plus") {
+                        createAndOpenNote()
+                    }
+                    .buttonStyle(.plain)
+                    Section("Options") {
+                        ScrollView(.horizontal) {
+                            HStack {
+                                Button("Clear All Notes") {
+                                    if confirm(description: "This action cannot be undone") {
+                                        for note in notesManager.notes {
+                                            dismissWindow(id: "note", value: note.id)
+                                        }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                            notesManager.notes = []
+                                        }
+                                    }
+                                }
+                                Button("Close All Notes") {
+                                    for note in notesManager.notes {
+                                        dismissWindow(id: "note", value: note.id)
+                                    }
+                                }
+                                Button("Open All Notes") {
+                                    for note in notesManager.notes {
+                                        dismissWindow(id: "note", value: note.id)
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                        for note in notesManager.notes {
+                                            openWindow(id: "note", value: note.id)
+                                        }
+                                    }
+                                }
+                                Button("Export Notes") {
+                                    let encoder = JSONEncoder()
+                                    encoder.outputFormatting = .prettyPrinted
+                                    if let encoded = try? encoder.encode(notesManager.notes) {
+                                        if let jsonString = String(data: encoded, encoding: .utf8) {
+                                            document = StickiesDocument(content: jsonString)
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
+                                                exportNotes = true
+                                            }
+                                        }
+                                    }
+                                }
+                                Button("Import Notes") {
+                                    importNotes = true
+                                }
+                            }
+                        }
+                        Toggle("Show Menu Bar Item", isOn: $showInMenuBar)
+                    }
+                    Section("Notes") {
+                        ForEach(notesManager.notes) { note in
+                            Button(action: { openWindow(id: "note", value: note.id) }) {
+                                HStack {
+                                    LazyVStack(alignment: .leading) {
+                                        Text(note.title ?? "Untitled Note")
+                                        Text(note.text)
+                                            .multilineTextAlignment(.leading)
+                                            .foregroundStyle(.gray)
+                                            .font(.caption)
+                                            .lineLimit(2)
+                                    }
+                                    Spacer()
+                                    Text(note.language.config.name.uppercased())
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button("Delete", systemImage: "trash") {
+                                    if confirm("Are you sure you want to delete \"\(note.title ?? "Untitled Note")\"", description: "This action cannot be undone") {
+                                        dismissWindow(id: "note", value: note.id)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
+                                            notesManager.deleteNote(with: note.id)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if notesManager.notes.isEmpty {
+                            Text("No Notes yet, try creating one!")
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                }
+                .formStyle(.grouped)
+                .navigationTitle("CodeStickies")
+            }
+            .scrollIndicators(.never)
+        }) {
+            Image(systemName: "note.text")
+        }
+        .menuBarExtraStyle(.window)
+    }
+    func createAndOpenNote() {
+        let id = UUID()
+        let result = showTextfieldAlert("Add Note", description: "Add a Descriptive Title for your Note")
+        if ((result?.isEmpty) ?? false) {
+            createNote(with: id)
+        } else {
+            createNote(with: id, name: result)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            openWindow(id: "note", value: id)
+        }
+    }
+    func importStickies(from url: URL) {
+        for note in notesManager.notes {
+            dismissWindow(id: "note", value: note.id)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            do {
+                let data = try Data(contentsOf: url)
+                let decoded = try JSONDecoder().decode([Note].self, from: data)
+                if confirm("Import Method", description: "Choose what to do with the new Stickies", trueButton: "Add to Existing", falseButton: "Replace Existing") {
+                    skipDuplicatesImport(decoded)
+                } else {
+                    replaceExistingImport(decoded)
+                }
+            } catch {
+                alert("Error Importing", description: error.localizedDescription, style: .critical)
+            }
+        }
+    }
+    func skipDuplicatesImport(_ notes: [Note]) {
+        var notesToImport: [Note] = []
+        var duplicates: [Note] = []
+        for note in notes {
+            if !notesManager.notes.contains(where: { $0.id == note.id }) {
+                notesToImport.append(note)
+            } else {
+                duplicates.append(note)
+            }
+        }
+        if confirm("Confirm", description: "This will import \(notesToImport.count) Note(s) (\(duplicates.count) Duplicates skipped)") {
+            for note in notesToImport {
+                notesManager.notes.append(note)
+            }
+        }
+    }
+    func replaceExistingImport(_ notes: [Note]) {
+        if confirm("Confirm", description: "This will remove your current Notes and import \(notes.count) new Note(s)") {
+            notesManager.notes = notes
+        }
+    }
+}
+
+@discardableResult
+func createNote(with uuid: UUID? = nil, name: String? = nil) -> Binding<Note> {
+    let id = uuid ?? UUID()
+    if let existing = NotesManager.shared.binding(for: id) {
+        return existing
+    } else {
+        DispatchQueue.main.async {
+            NotesManager.shared.notes.append(Note(id: id, text: "NEW NOTE", title: name))
+        }
+        print("Created Note with ID: \(id.uuidString)")
+        return NotesManager.shared.binding(for: id) ?? .constant(Note(id: UUID(), text: "", title: name))
+    }
+}
+
+struct Note: Codable, Hashable, Identifiable {
+    var id: UUID
+    var text: String
+    var title: String?
+    var language: CodableLanguageConfiguration = CodableLanguageConfiguration(config: .none)
+}
+
+class NotesManager: ObservableObject {
+    static let shared = NotesManager()
+    @Published var notes: [Note] = [] {
+        didSet {
+            saveNotes()
+        }
+    }
+    init() {
+        loadNotes()
+    }
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
+    public func saveNotes() {
+        if let saveData = try? encoder.encode(notes) {
+            UserDefaults.standard.set(saveData, forKey: "notes")
+        }
+    }
+    public func loadNotes() {
+        if let savedData = try? decoder.decode([Note].self, from: UserDefaults.standard.data(forKey: "notes") ?? Data()) {
+            notes = savedData
+        }
+    }
+}
+
+extension NotesManager {
+    func binding(for id: UUID) -> Binding<Note>? {
+        guard let index = notes.firstIndex(where: { $0.id == id }) else {
+            return nil
+        }
+
+        return Binding(
+            get: { self.notes[index] },
+            set: { self.notes[index] = $0 }
+        )
+    }
+    func deleteNote(with id: UUID) {
+        if let index = notes.firstIndex(where: { $0.id == id }) {
+            notes.remove(at: index)
+        }
+    }
+
+}
+
+import AppKit
+
+// A helper view that gives you the NSWindow for any SwiftUI view:
+struct WindowAccessor: NSViewRepresentable {
+    var callback: (NSWindow?) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let v = NSView()
+        // Dispatch to next runloop so that v.window is non-nil
+        DispatchQueue.main.async {
+            self.callback(v.window)
+        }
+        return v
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) { }
+}
+
+extension View {
+    func onWindowAppear(_ callback: @escaping (NSWindow?) -> Void) -> some View {
+        background(WindowAccessor(callback: callback))
+    }
+}
+import AppKit
+import ObjectiveC.runtime
+
+extension NSWindow {
+    @objc func swizzled_canBecomeKey() -> Bool {
+        return true
+    }
+
+    static func swizzleCanBecomeKey() {
+        let originalSelector = #selector(getter: NSWindow.canBecomeKey)
+        let swizzledSelector = #selector(swizzled_canBecomeKey)
+
+        guard
+            let originalMethod = class_getInstanceMethod(NSWindow.self, originalSelector),
+            let swizzledMethod = class_getInstanceMethod(NSWindow.self, swizzledSelector)
+        else { return }
+
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+}
+
+func showTextfieldAlert(_ title: String, description: String) -> String? {
+    let alert = NSAlert()
+    alert.messageText = title
+    alert.informativeText = description
+
+    let textField = NSTextField()
+    textField.frame = NSRect(x: 0, y: 0, width: 200, height: 24)
+    alert.accessoryView = textField
+
+    alert.addButton(withTitle: "OK")
+    alert.addButton(withTitle: "Cancel")
+
+    let response = alert.runModal()
+    if response == .alertFirstButtonReturn {
+        return textField.stringValue
+    } else {
+        return nil
+    }
+}
+func confirm(_ title: String? = nil, description: String, trueButton: String? = nil, falseButton: String? = nil) -> Bool {
+    let alert = NSAlert()
+    alert.messageText = title ?? "Are you sure?"
+    alert.informativeText = description
+
+    alert.addButton(withTitle: trueButton ?? "OK")
+    alert.addButton(withTitle: falseButton ?? "Cancel")
+
+    let response = alert.runModal()
+    if response == .alertFirstButtonReturn {
+        return true
+    } else {
+        return false
+    }
+}
+func alert(_ title: String, description: String, style: NSAlert.Style? = .informational) {
+    let alert = NSAlert()
+    alert.messageText = title
+    alert.informativeText = description
+
+    alert.addButton(withTitle: "OK")
+    alert.alertStyle = style!
+    alert.runModal()
+}
+enum LanguageConfigurationKind: Int, Codable {
+    case none = 0
+    case agda = 1
+    case cabal = 2
+    case cypher = 3
+    case haskell = 4
+    case sqlite = 5
+    case swift = 6
+}
+
+struct CodableLanguageConfiguration: Codable, Hashable, Equatable {
+    var config: LanguageConfiguration
+
+    init(config: LanguageConfiguration) {
+        self.config = config
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case kind
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        let kind = Self.kind(for: config)
+        try container.encode(kind, forKey: .kind)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let kind = try container.decode(LanguageConfigurationKind.self, forKey: .kind)
+        self.config = Self.config(for: kind)
+    }
+
+    static func == (lhs: CodableLanguageConfiguration, rhs: CodableLanguageConfiguration) -> Bool {
+        return kind(for: lhs.config) == kind(for: rhs.config)
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(Self.kind(for: config))
+    }
+
+    private static func kind(for config: LanguageConfiguration) -> LanguageConfigurationKind {
+        switch config {
+        case .none:
+            return .none
+        case .agda():
+            return .agda
+        case .cabal():
+            return .cabal
+        case .cypher():
+            return .cypher
+        case .haskell():
+            return .haskell
+        case .sqlite():
+            return .sqlite
+        case .swift():
+            return .swift
+        default:
+            return .none
+        }
+    }
+
+    private static func config(for kind: LanguageConfigurationKind) -> LanguageConfiguration {
+        switch kind {
+        case .none:
+            return .none
+        case .agda:
+            return .agda()
+        case .cabal:
+            return .cabal()
+        case .cypher:
+            return .cypher()
+        case .haskell:
+            return .haskell()
+        case .sqlite:
+            return .sqlite()
+        case .swift:
+            return .swift()
+        }
+    }
+}

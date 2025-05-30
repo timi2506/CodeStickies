@@ -1,0 +1,740 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8D12EAB42DD71B57009D7BDD /* CodeEditorView in Frameworks */ = {isa = PBXBuildFile; productRef = 8D12EAB32DD71B57009D7BDD /* CodeEditorView */; };
+		8D12EAB62DD71B57009D7BDD /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8D12EAB52DD71B57009D7BDD /* LanguageSupport */; };
+		8D12EAB92DD71B68009D7BDD /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 8D12EAB82DD71B68009D7BDD /* SwiftUIIntrospect */; };
+		8D5709112DD7844900C28B39 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D5708CE2DD7804E00C28B39 /* Quartz.framework */; };
+		8D57091E2DD7844900C28B39 /* StickiesPreviewExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8D5709102DD7844900C28B39 /* StickiesPreviewExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8D5709242DD7872600C28B39 /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8D5709232DD7872600C28B39 /* LanguageSupport */; };
+		8D5709332DD7947800C28B39 /* StickiesSpotlightExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8D57092B2DD7947800C28B39 /* StickiesSpotlightExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8D5709392DD7959A00C28B39 /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8D5709382DD7959A00C28B39 /* LanguageSupport */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8D57091C2DD7844900C28B39 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8DAFA12F2DD5FD5100AC0300 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D57090F2DD7844900C28B39;
+			remoteInfo = StickiesPreviewExtension;
+		};
+		8D5709312DD7947800C28B39 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8DAFA12F2DD5FD5100AC0300 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D57092A2DD7947800C28B39;
+			remoteInfo = StickiesSpotlightExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8D1469702DD7CE1E00750EEA /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed ExtensionKit Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D5708E12DD7804E00C28B39 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8D5709332DD7947800C28B39 /* StickiesSpotlightExtension.appex in Embed Foundation Extensions */,
+				8D57091E2DD7844900C28B39 /* StickiesPreviewExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8D14693A2DD7CD5500750EEA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		8D5708CE2DD7804E00C28B39 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
+		8D5709102DD7844900C28B39 /* StickiesPreviewExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StickiesPreviewExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D57092B2DD7947800C28B39 /* StickiesSpotlightExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StickiesSpotlightExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D5709412DD79B2C00C28B39 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		8DAFA1372DD5FD5100AC0300 /* CodeStickies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeStickies.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8D5708C52DD750EA00C28B39 /* Exceptions for "CodeStickies" folder in "CodeStickies" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8DAFA1362DD5FD5100AC0300 /* CodeStickies */;
+		};
+		8D5709222DD7844900C28B39 /* Exceptions for "StickiesPreviewExtension" folder in "StickiesPreviewExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8D57090F2DD7844900C28B39 /* StickiesPreviewExtension */;
+		};
+		8D5709372DD7947800C28B39 /* Exceptions for "StickiesSpotlightExtension" folder in "StickiesSpotlightExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8D57092A2DD7947800C28B39 /* StickiesSpotlightExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		8D5709122DD7844900C28B39 /* StickiesPreviewExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8D5709222DD7844900C28B39 /* Exceptions for "StickiesPreviewExtension" folder in "StickiesPreviewExtension" target */,
+			);
+			path = StickiesPreviewExtension;
+			sourceTree = "<group>";
+		};
+		8D57092C2DD7947800C28B39 /* StickiesSpotlightExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8D5709372DD7947800C28B39 /* Exceptions for "StickiesSpotlightExtension" folder in "StickiesSpotlightExtension" target */,
+			);
+			path = StickiesSpotlightExtension;
+			sourceTree = "<group>";
+		};
+		8DAFA1392DD5FD5100AC0300 /* CodeStickies */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8D5708C52DD750EA00C28B39 /* Exceptions for "CodeStickies" folder in "CodeStickies" target */,
+			);
+			path = CodeStickies;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D57090D2DD7844900C28B39 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D5709242DD7872600C28B39 /* LanguageSupport in Frameworks */,
+				8D5709112DD7844900C28B39 /* Quartz.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D5709282DD7947800C28B39 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D5709392DD7959A00C28B39 /* LanguageSupport in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DAFA1342DD5FD5100AC0300 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D12EAB92DD71B68009D7BDD /* SwiftUIIntrospect in Frameworks */,
+				8D12EAB62DD71B57009D7BDD /* LanguageSupport in Frameworks */,
+				8D12EAB42DD71B57009D7BDD /* CodeEditorView in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8D5708CD2DD7804E00C28B39 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8D5708CE2DD7804E00C28B39 /* Quartz.framework */,
+				8D5709412DD79B2C00C28B39 /* SwiftUI.framework */,
+				8D14693A2DD7CD5500750EEA /* Cocoa.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8DAFA12E2DD5FD5100AC0300 = {
+			isa = PBXGroup;
+			children = (
+				8DAFA1392DD5FD5100AC0300 /* CodeStickies */,
+				8D5709122DD7844900C28B39 /* StickiesPreviewExtension */,
+				8D57092C2DD7947800C28B39 /* StickiesSpotlightExtension */,
+				8D5708CD2DD7804E00C28B39 /* Frameworks */,
+				8DAFA1382DD5FD5100AC0300 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8DAFA1382DD5FD5100AC0300 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DAFA1372DD5FD5100AC0300 /* CodeStickies.app */,
+				8D5709102DD7844900C28B39 /* StickiesPreviewExtension.appex */,
+				8D57092B2DD7947800C28B39 /* StickiesSpotlightExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D57090F2DD7844900C28B39 /* StickiesPreviewExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8D57091F2DD7844900C28B39 /* Build configuration list for PBXNativeTarget "StickiesPreviewExtension" */;
+			buildPhases = (
+				8D57090C2DD7844900C28B39 /* Sources */,
+				8D57090D2DD7844900C28B39 /* Frameworks */,
+				8D57090E2DD7844900C28B39 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8D5709122DD7844900C28B39 /* StickiesPreviewExtension */,
+			);
+			name = StickiesPreviewExtension;
+			packageProductDependencies = (
+				8D5709232DD7872600C28B39 /* LanguageSupport */,
+			);
+			productName = StickiesPreviewExtension;
+			productReference = 8D5709102DD7844900C28B39 /* StickiesPreviewExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		8D57092A2DD7947800C28B39 /* StickiesSpotlightExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8D5709342DD7947800C28B39 /* Build configuration list for PBXNativeTarget "StickiesSpotlightExtension" */;
+			buildPhases = (
+				8D5709272DD7947800C28B39 /* Sources */,
+				8D5709282DD7947800C28B39 /* Frameworks */,
+				8D5709292DD7947800C28B39 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8D57092C2DD7947800C28B39 /* StickiesSpotlightExtension */,
+			);
+			name = StickiesSpotlightExtension;
+			packageProductDependencies = (
+				8D5709382DD7959A00C28B39 /* LanguageSupport */,
+			);
+			productName = StickiesSpotlightExtension;
+			productReference = 8D57092B2DD7947800C28B39 /* StickiesSpotlightExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		8DAFA1362DD5FD5100AC0300 /* CodeStickies */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8DAFA1462DD5FD5300AC0300 /* Build configuration list for PBXNativeTarget "CodeStickies" */;
+			buildPhases = (
+				8DAFA1332DD5FD5100AC0300 /* Sources */,
+				8DAFA1342DD5FD5100AC0300 /* Frameworks */,
+				8DAFA1352DD5FD5100AC0300 /* Resources */,
+				8D5708E12DD7804E00C28B39 /* Embed Foundation Extensions */,
+				8D1469702DD7CE1E00750EEA /* Embed ExtensionKit Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8D57091D2DD7844900C28B39 /* PBXTargetDependency */,
+				8D5709322DD7947800C28B39 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8DAFA1392DD5FD5100AC0300 /* CodeStickies */,
+			);
+			name = CodeStickies;
+			packageProductDependencies = (
+				8D12EAB32DD71B57009D7BDD /* CodeEditorView */,
+				8D12EAB52DD71B57009D7BDD /* LanguageSupport */,
+				8D12EAB82DD71B68009D7BDD /* SwiftUIIntrospect */,
+			);
+			productName = CodeStickies;
+			productReference = 8DAFA1372DD5FD5100AC0300 /* CodeStickies.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8DAFA12F2DD5FD5100AC0300 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					8D57090F2DD7844900C28B39 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					8D57092A2DD7947800C28B39 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					8DAFA1362DD5FD5100AC0300 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 8DAFA1322DD5FD5100AC0300 /* Build configuration list for PBXProject "CodeStickies" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8DAFA12E2DD5FD5100AC0300;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8D12EAB22DD71B57009D7BDD /* XCRemoteSwiftPackageReference "CodeEditorView" */,
+				8D12EAB72DD71B68009D7BDD /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 8DAFA1382DD5FD5100AC0300 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8DAFA1362DD5FD5100AC0300 /* CodeStickies */,
+				8D57090F2DD7844900C28B39 /* StickiesPreviewExtension */,
+				8D57092A2DD7947800C28B39 /* StickiesSpotlightExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D57090E2DD7844900C28B39 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D5709292DD7947800C28B39 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DAFA1352DD5FD5100AC0300 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D57090C2DD7844900C28B39 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D5709272DD7947800C28B39 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DAFA1332DD5FD5100AC0300 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8D57091D2DD7844900C28B39 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D57090F2DD7844900C28B39 /* StickiesPreviewExtension */;
+			targetProxy = 8D57091C2DD7844900C28B39 /* PBXContainerItemProxy */;
+		};
+		8D5709322DD7947800C28B39 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D57092A2DD7947800C28B39 /* StickiesSpotlightExtension */;
+			targetProxy = 8D5709312DD7947800C28B39 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		8D5709202DD7844900C28B39 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StickiesPreviewExtension/StickiesPreviewExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44U4N2P8L5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StickiesPreviewExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StickiesPreviewExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies.StickiesPreviewExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8D5709212DD7844900C28B39 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StickiesPreviewExtension/StickiesPreviewExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44U4N2P8L5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StickiesPreviewExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StickiesPreviewExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies.StickiesPreviewExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8D5709352DD7947800C28B39 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StickiesSpotlightExtension/StickiesSpotlightExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44U4N2P8L5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StickiesSpotlightExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StickiesSpotlightExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies.StickiesSpotlightExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8D5709362DD7947800C28B39 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StickiesSpotlightExtension/StickiesSpotlightExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 44U4N2P8L5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StickiesSpotlightExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StickiesSpotlightExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies.StickiesSpotlightExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8DAFA1442DD5FD5300AC0300 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		8DAFA1452DD5FD5300AC0300 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		8DAFA1472DD5FD5300AC0300 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CodeStickies/CodeStickies.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CodeStickies/Preview Content\"";
+				DEVELOPMENT_TEAM = 44U4N2P8L5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CodeStickies/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8DAFA1482DD5FD5300AC0300 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CodeStickies/CodeStickies.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CodeStickies/Preview Content\"";
+				DEVELOPMENT_TEAM = 44U4N2P8L5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CodeStickies/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8D57091F2DD7844900C28B39 /* Build configuration list for PBXNativeTarget "StickiesPreviewExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8D5709202DD7844900C28B39 /* Debug */,
+				8D5709212DD7844900C28B39 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8D5709342DD7947800C28B39 /* Build configuration list for PBXNativeTarget "StickiesSpotlightExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8D5709352DD7947800C28B39 /* Debug */,
+				8D5709362DD7947800C28B39 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8DAFA1322DD5FD5100AC0300 /* Build configuration list for PBXProject "CodeStickies" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8DAFA1442DD5FD5300AC0300 /* Debug */,
+				8DAFA1452DD5FD5300AC0300 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8DAFA1462DD5FD5300AC0300 /* Build configuration list for PBXNativeTarget "CodeStickies" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8DAFA1472DD5FD5300AC0300 /* Debug */,
+				8DAFA1482DD5FD5300AC0300 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8D12EAB22DD71B57009D7BDD /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mchakravarty/CodeEditorView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.4;
+			};
+		};
+		8D12EAB72DD71B68009D7BDD /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8D12EAB32DD71B57009D7BDD /* CodeEditorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D12EAB22DD71B57009D7BDD /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = CodeEditorView;
+		};
+		8D12EAB52DD71B57009D7BDD /* LanguageSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D12EAB22DD71B57009D7BDD /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = LanguageSupport;
+		};
+		8D12EAB82DD71B68009D7BDD /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D12EAB72DD71B68009D7BDD /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
+		};
+		8D5709232DD7872600C28B39 /* LanguageSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LanguageSupport;
+		};
+		8D5709382DD7959A00C28B39 /* LanguageSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D12EAB22DD71B57009D7BDD /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = LanguageSupport;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8DAFA12F2DD5FD5100AC0300 /* Project object */;
+}
