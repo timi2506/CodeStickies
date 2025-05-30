@@ -23,112 +23,40 @@ struct CodeStickiesApp: App {
     }
     @StateObject var notesManager = NotesManager.shared
     @State var exportNotes = false
+    @State var exportSingleNote = false
     @State var importNotes = false
     @State private var document: StickiesDocument?
     @AppStorage("showInMenuBar") var showInMenuBar = true
     var body: some Scene {
         WindowGroup(id: "main") {
-            NavigationStack {
-                Form {
-                    Section("Options") {
-                        ScrollView(.horizontal) {
-                            HStack {
-                                Button("Clear All Notes") {
-                                    if confirm(description: "This action cannot be undone") {
-                                        for note in notesManager.notes {
-                                            dismissWindow(id: "note", value: note.id)
-                                        }
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                            notesManager.notes = []
-                                        }
-                                    }
-                                }
-                                Button("Close All Notes") {
-                                    for note in notesManager.notes {
-                                        dismissWindow(id: "note", value: note.id)
-                                    }
-                                }
-                                Button("Open All Notes") {
-                                    for note in notesManager.notes {
-                                        dismissWindow(id: "note", value: note.id)
-                                    }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                        for note in notesManager.notes {
-                                            openWindow(id: "note", value: note.id)
-                                        }
-                                    }
-                                }
-                                Button("Export Notes") {
-                                    let encoder = JSONEncoder()
-                                    encoder.outputFormatting = .prettyPrinted
-                                    if let encoded = try? encoder.encode(notesManager.notes) {
-                                        if let jsonString = String(data: encoded, encoding: .utf8) {
-                                            document = StickiesDocument(content: jsonString)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
-                                                exportNotes = true
-                                            }
-                                        }
-                                    }
-                                }
-                                Button("Import Notes") {
-                                    importNotes = true
-                                }
-                            }
-                        }
-                        Toggle("Show Menu Bar Item", isOn: $showInMenuBar)
-                    }
-                    Section("Notes") {
-                        ForEach(notesManager.notes, id: \.id) { note in
-                            Button(action: { openWindow(id: "note", value: note.id) }) {
-                                HStack {
-                                    LazyVStack(alignment: .leading) {
-                                        Text(note.title ?? "Untitled Note")
-                                        Text(note.text)
-                                            .multilineTextAlignment(.leading)
-                                            .foregroundStyle(.gray)
-                                            .font(.caption)
-                                            .lineLimit(2)
-                                    }
-                                    Spacer()
-                                    Text(note.language.config.name.uppercased())
-                                        .font(.caption)
-                                        .foregroundStyle(.gray)
-                                }
-                            }
-                            .buttonStyle(.plain)
-                            .contextMenu {
-                                Button("Delete", systemImage: "trash") {
-                                    if confirm("Are you sure you want to delete \"\(note.title ?? "Untitled Note")\"", description: "This action cannot be undone") {
-                                        dismissWindow(id: "note", value: note.id)
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
-                                            notesManager.deleteNote(with: note.id)
-                                        }
-                                    }
-                                }
+            WelcomeView(titleText: .constant("CodeStickies"), menu: .constant(WelcomeMenu(content: {
+                WelcomeMenuButton(title: "Import Note", image: Image(systemName: "square.and.arrow.down"), action: {
+                    importNotes = true
+                })
+                WelcomeMenuButton(title: "Export Notes", image: Image(systemName: "square.and.arrow.up"), action: {
+                    let encoder = JSONEncoder()
+                    encoder.outputFormatting = .prettyPrinted
+                    if let encoded = try? encoder.encode(notesManager.notes) {
+                        if let jsonString = String(data: encoded, encoding: .utf8) {
+                            document = StickiesDocument(content: jsonString)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
+                                exportNotes = true
                             }
                         }
                     }
-                    
-                }
-                .formStyle(.grouped)
-                .toolbar {
-                    Button(action: {
-                        createAndOpenNote()
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                }
-                .scrollIndicators(.never)
-                .navigationTitle("Main Window")
-            }
-            .fileImporter(isPresented: $importNotes, allowedContentTypes: [stickiesType], onCompletion: { result in
-                switch result {
-                case .success(let url):
-                    importStickies(from: url)
-                case .failure:
-                    alert("Error Importing", description: "An Error occured importing your Notes", style: .critical)
-                }
-            })
+                })
+                WelcomeMenuButton(title: "Add Note", image: Image(systemName: "plus.app"), action: {
+                    createAndOpenNote()
+                })
+            })), emptyMessage: "No Notes", recentNotes: $notesManager.notes)
+            .padding(5)
+            .background(.thickMaterial)
+            .background(
+                WindowAccessor(callback: { window in
+                    window?.isMovableByWindowBackground = true
+                })
+            )
+            .cornerRadius(10)
             .fileExporter(
                 isPresented: $exportNotes,
                 document: document,
@@ -147,8 +75,93 @@ struct CodeStickiesApp: App {
             .onOpenURL(perform: { url in
                 importStickies(from: url)
             })
+            .fileImporter(isPresented: $importNotes, allowedContentTypes: [stickiesType], onCompletion: { result in
+                switch result {
+                case .success(let url):
+                    importStickies(from: url)
+                case .failure:
+                    alert("Error Importing", description: "An Error occured importing your Notes", style: .critical)
+                }
+            })
         }
-        .windowIdealSize(.fitToContent)
+        .windowStyle(.plain)
+        .commands {
+            CommandMenu("Options") {
+                Button("Clear All Notes") {
+                    if confirm(description: "This action cannot be undone") {
+                        for note in notesManager.notes {
+                            dismissWindow(id: "note", value: note.id)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                            notesManager.notes = []
+                        }
+                    }
+                }
+                Button("Close All Notes") {
+                    for note in notesManager.notes {
+                        dismissWindow(id: "note", value: note.id)
+                    }
+                }
+                Button("Open All Notes") {
+                    for note in notesManager.notes {
+                        dismissWindow(id: "note", value: note.id)
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                        for note in notesManager.notes {
+                            openWindow(id: "note", value: note.id)
+                        }
+                    }
+                }
+                Toggle("Show Menu Bar Icon", isOn: $showInMenuBar)
+            }
+        }
+        WindowGroup(id: "exportSingleNote", for: SingleExportNote.self) { exportNote in
+            if let note = exportNote.wrappedValue {
+                let document = StickiesDocument(content: note.documentContent)
+                VStack {
+                    Text("Exporting Note")
+                        .bold()
+                    ProgressView()
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                        exportSingleNote = true
+                    })
+                }
+                .fileExporter(
+                    isPresented: $exportSingleNote,
+                    document: document,
+                    contentType: stickiesType,
+                    defaultFilename: note.note.title ?? "Untitled Note"
+                ) { result in
+                    switch result {
+                    case .success(_):
+                        CodeStickies.alert("Success", description: "Successfully exported Note", style: .informational)
+                        dismissWindow(id: "exportSingleNote")
+                    case .failure(_):
+                        CodeStickies.alert("Error", description: "An Error occured exporting Note", style: .informational)
+                        dismissWindow(id: "exportSingleNote")
+                    }
+                }
+                .onChange(of: exportSingleNote) { new in
+                    if !new {
+                        dismissWindow(id: "exportSingleNote")
+                    }
+                }
+                .onDisappear {
+                    exportSingleNote = false
+                }
+                .background(WindowAccessor(callback: { window in
+                    window?.isMovableByWindowBackground = true
+                }))
+            }
+        }
+        .windowStyle(.plain)
+        .windowLevel(.floating)
+        .handlesExternalEvents(matching: [])
         WindowGroup(id: "note", for: UUID.self) { uuid in
             NavigationStack {
                 VStack {
@@ -586,4 +599,9 @@ struct CodableLanguageConfiguration: Codable, Hashable, Equatable {
             return .swift()
         }
     }
+}
+
+struct SingleExportNote: Codable, Hashable {
+    var documentContent: String
+    var note: Note
 }
