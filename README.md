@@ -1,4 +1,4 @@
-<img width="1680" alt="image" src="https://github.com/user-attachments/assets/105d20dd-2913-4973-8b8b-ed42544cb8ab" />
+<img width="1680" alt="image" src="https://github.com/user-attachments/assets/1b513502-a8ac-45e3-baa7-fb4e0980c30d" />
 
 
 # CodeStickies
