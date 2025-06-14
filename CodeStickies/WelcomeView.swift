@@ -163,7 +163,7 @@ public struct WelcomeMenuButton: View {
 
     public var body: some View {
         Button(action: action) {
-            HStack {
+            HStack(alignment: .center) {
                 image
                     .foregroundStyle(.gray)
                     .font(.system(size: 17.5, weight: .medium))
@@ -172,11 +172,11 @@ public struct WelcomeMenuButton: View {
                     .font(.system(size: 12.5, weight: .semibold))
                 Spacer()
             }
-            .padding(7.5)
-            .background(.gray.opacity(0.10))
+            .padding(2.5)
+//            .background(.gray.opacity(0.10))
             .cornerRadius(5)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.glass)
     }
 }
 
@@ -244,7 +244,7 @@ struct RecentFileView: View {
             Spacer()
         }
         .padding(7.5)
-        .background(.tint.opacity(selected ? 1 : 0))
+        .glassEffect(.regular.tint(.accentColor), in: RoundedRectangle(cornerRadius: 5), isEnabled: selected)
         .cornerRadius(5)
         .contentShape(.rect)
         .onTapGesture {
@@ -279,7 +279,7 @@ struct RecentFileView: View {
                     }
                 }
             }
-            Button("Export") {
+            Button("Export", systemImage: "square.and.arrow.up") {
                 exportAction(note)
             }
         }

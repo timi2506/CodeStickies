@@ -86,6 +86,12 @@ struct CodeStickiesApp: App {
         }
         .windowStyle(.plain)
         .commands {
+            CommandGroup(replacing: .appVisibility, addition: {
+                Button("Close Main Window") {
+                    dismissWindow.callAsFunction(id: "main")
+                }
+                .keyboardShortcut("W", modifiers: .command)
+            })
             CommandMenu("Options") {
                 Button("Clear All Notes") {
                     if confirm(description: "This action cannot be undone") {
@@ -381,7 +387,12 @@ func createNote(with uuid: UUID? = nil, name: String? = nil) -> Binding<Note> {
         return NotesManager.shared.binding(for: id) ?? .constant(Note(id: UUID(), text: "", title: name))
     }
 }
-
+import FoundationModels
+@Generable
+struct GenerableNote {
+    @Guide(description: "The Contents of the Note") var text: String
+    @Guide(description: "The Title of the Note") var title: String?
+}
 struct Note: Codable, Hashable, Identifiable {
     var id: UUID
     var text: String

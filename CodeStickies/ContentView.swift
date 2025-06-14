@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftUIIntrospect
 import CodeEditorView
 import LanguageSupport
+import FoundationModels
 
 struct ContentView: View {
     @Binding var note: Note
@@ -25,6 +26,13 @@ struct ContentView: View {
     @State var runSheet = false
     @State var editTitle = false
     @State var showPackagify = false
+    @State var aiView = false
+    @State var previousText: String?
+    @State var aiPrompt = ""
+    @State var aiState: AIState = .idle
+    @State var modelSession: LanguageModelSession = LanguageModelSession(instructions: {
+        "You are a helpful AI Text Assistant inside of a macOS App called \"CodeStickies\" that allows users to create small Windows - similar to Apple's Sticky Notes - where they can write down Notes or Code. ALWAYS JUST MODIFY THE NOTE do NOT add any Comments but rather just respond with the Modified Note directly without any CodeBlocks or similar."
+    })
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -68,8 +76,10 @@ struct ContentView: View {
                         }
                     }), onCommit: { editTitle.toggle() })
                     .textFieldStyle(.plain)
+                    .lineLimit(1)
                 } else {
                     Text(note.title ?? "Untitled Note")
+                        .lineLimit(1)
                         .foregroundStyle(.gray.opacity(0.5))
                         .onTapGesture {
                             editTitle.toggle()
@@ -77,6 +87,24 @@ struct ContentView: View {
                 }
                 Spacer()
                 LanguagePicker("Language", selection: $note.language.config)
+                    .lineLimit(1)
+                if SystemLanguageModel.default.availability == .available {
+                    Button(action: {
+                        withAnimation() {
+                            aiView.toggle()
+                        }
+                    }) {
+                        Image(systemName: "apple.intelligence")
+                            .bold()
+                            .foregroundStyle(.gray)
+                            .frame(width: 15, height: 15)
+                            .background(.gray.opacity(0.05))
+                            .cornerRadius(2.5)
+                            .padding(.vertical, 5)
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(.rect)
+                }
                 Button(action: {
                     showPackagify = true
                 }) {
@@ -106,19 +134,89 @@ struct ContentView: View {
             }
             .padding(.horizontal, 10)
             .background(.ultraThickMaterial)
-            if !minimized {
-                CodeEditor(text: $note.text, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
-                    .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
-                    .environment(\.codeEditorLayoutConfiguration, .init(showMinimap: false, wrapText: true))
-            } else if resizing {
-                CodeEditor(text: $note.text, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
-                    .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
-                    .environment(\.codeEditorLayoutConfiguration, .init(showMinimap: false, wrapText: true))
-                    .frame(height: resizeHeight)
-            } else {
-                Rectangle()
-                    .frame(width: 100, height: 1)
-                    .foregroundStyle(.clear)
+            VStack {
+                if !minimized {
+                    CodeEditor(text: $note.text, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
+                        .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
+                        .environment(\.codeEditorLayoutConfiguration, .init(showMinimap: false, wrapText: true))
+                    if aiView {
+                        GlassEffectContainer {
+                            HStack {
+                                TextField("Describe Changes", text: $aiPrompt)
+                                    .textFieldStyle(.plain)
+                                    .padding(5)
+                                    .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                                if !aiPrompt.isEmpty {
+                                    Button(action: {
+                                        Task {
+                                            previousText = note.text
+                                            aiState = .generating
+                                            let session = modelSession.streamResponse(generating: GenerableNote.self, prompt: {
+                                                NotePrompt(userPrompt: aiPrompt, note: GenerableNote(text: note.text, title: note.title ?? "Untitled Note"))
+                                            })
+                                            withAnimation() {
+                                                aiPrompt = ""
+                                            }
+                                            for try await chunk in session {
+                                                note = Note(id: note.id, text: chunk.text ?? "", title: note.title, language: note.language)
+                                            }
+                                            aiState = .finished
+                                        }
+                                    }) {
+                                        Image(systemName: "paperplane.fill")
+                                            .padding(5)
+                                            .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .labelStyle(.iconOnly)
+                                    .disabled(aiState == .generating)
+                                }
+                            }
+                            .padding(2.5)
+                        }
+                        .animation(.snappy, value: aiPrompt)
+                        if aiState != .idle {
+                            HStack {
+                                switch aiState {
+                                case .idle:
+                                    Text("Idle")
+                                        .padding(.horizontal)
+                                case .generating:
+                                    ProgressView().controlSize(.small)
+                                        .padding(.horizontal, 5)
+                                case .finished:
+                                    Text("Finished Generating")
+                                        .padding(.horizontal)
+                                }
+                                Spacer()
+                                Button("Revert Changes") {
+                                    withAnimation() {
+                                        if let previousText {
+                                            note.text = previousText
+                                            aiState = .idle
+                                        }
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(aiState != .finished || previousText == nil)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(5)
+                            .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                            .padding(.horizontal, 2.5)
+                            .animation(.snappy, value: aiState)
+                        }
+                    }
+                } else if resizing {
+                    CodeEditor(text: $note.text, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
+                        .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
+                        .environment(\.codeEditorLayoutConfiguration, .init(showMinimap: false, wrapText: true))
+                        .frame(height: resizeHeight)
+                } else {
+                    Rectangle()
+                        .frame(width: 100, height: 1)
+                        .foregroundStyle(.clear)
+                }
             }
         }
         .popover(isPresented: $runSheet) {
@@ -152,6 +250,12 @@ struct ContentView: View {
             }
         }
     }
+}
+
+@Generable
+struct NotePrompt {
+    @Guide(description: "The User Prompt which you will base your response on") var userPrompt: String
+    @Guide(description: "The Note to modify") var note: GenerableNote
 }
 
 struct LanguagePicker: View {
@@ -217,4 +321,10 @@ struct CustomPickerItem<CustomType>: Identifiable {
     let id = UUID()
     let item: CustomType
     let name: String
+}
+
+enum AIState {
+    case idle
+    case generating
+    case finished
 }

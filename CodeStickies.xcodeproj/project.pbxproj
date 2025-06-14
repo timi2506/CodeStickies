@@ -15,6 +15,7 @@
 		8D5709242DD7872600C28B39 /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8D5709232DD7872600C28B39 /* LanguageSupport */; };
 		8D5709332DD7947800C28B39 /* StickiesSpotlightExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8D57092B2DD7947800C28B39 /* StickiesSpotlightExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8D5709392DD7959A00C28B39 /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8D5709382DD7959A00C28B39 /* LanguageSupport */; };
+		8DE1D7CE2DF803BA009706DF /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8DE1D7CD2DF803BA009706DF /* MarkdownUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -144,6 +145,7 @@
 				8D12EAB92DD71B68009D7BDD /* SwiftUIIntrospect in Frameworks */,
 				8D12EAB62DD71B57009D7BDD /* LanguageSupport in Frameworks */,
 				8D12EAB42DD71B57009D7BDD /* CodeEditorView in Frameworks */,
+				8DE1D7CE2DF803BA009706DF /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,6 +256,7 @@
 				8D12EAB32DD71B57009D7BDD /* CodeEditorView */,
 				8D12EAB52DD71B57009D7BDD /* LanguageSupport */,
 				8D12EAB82DD71B68009D7BDD /* SwiftUIIntrospect */,
+				8DE1D7CD2DF803BA009706DF /* MarkdownUI */,
 			);
 			productName = CodeStickies;
 			productReference = 8DAFA1372DD5FD5100AC0300 /* CodeStickies.app */;
@@ -292,6 +295,7 @@
 			packageReferences = (
 				8D12EAB22DD71B57009D7BDD /* XCRemoteSwiftPackageReference "CodeEditorView" */,
 				8D12EAB72DD71B68009D7BDD /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+				8DE1D7CC2DF803BA009706DF /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8DAFA1382DD5FD5100AC0300 /* Products */;
@@ -594,8 +598,9 @@
 		8DAFA1472DD5FD5300AC0300 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = CodeStickiesIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = CodeStickies/CodeStickies.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -611,8 +616,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15;
-				MARKETING_VERSION = 1.1.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -623,8 +628,9 @@
 		8DAFA1482DD5FD5300AC0300 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = CodeStickiesIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = CodeStickies/CodeStickies.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -640,8 +646,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15;
-				MARKETING_VERSION = 1.1.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.timi2506.CodeStickies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -707,6 +713,14 @@
 				minimumVersion = 1.3.0;
 			};
 		};
+		8DE1D7CC2DF803BA009706DF /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -733,6 +747,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8D12EAB22DD71B57009D7BDD /* XCRemoteSwiftPackageReference "CodeEditorView" */;
 			productName = LanguageSupport;
+		};
+		8DE1D7CD2DF803BA009706DF /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8DE1D7CC2DF803BA009706DF /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
