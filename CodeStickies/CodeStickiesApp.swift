@@ -325,14 +325,13 @@ struct CodeStickiesApp: App {
     func createAndOpenNote() {
         let id = UUID()
         let result = showTextfieldAlert("Add Note", description: "Add a Descriptive Title for your Note")
-        if ((result?.isEmpty) ?? false) {
-            createNote(with: id)
-        } else {
+        if !((result?.isEmpty) ?? true) {
             createNote(with: id, name: result)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                openWindow(id: "note", value: id)
+            }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            openWindow(id: "note", value: id)
-        }
+        
     }
     func importStickies(from url: URL) {
         for note in notesManager.notes {

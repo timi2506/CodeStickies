@@ -284,8 +284,6 @@ struct NoteEditor: View {
     @State var size: CGFloat = 0
     @State var changeSize = false
     @State var toolbarFont: Font = .body
-    @State var color: Color = .primary
-    @State var colorBuffer = false
     var body: some View {
         VStack {
             if note.language.config == .none {
@@ -356,33 +354,8 @@ struct NoteEditor: View {
                             ), label: {
                                 EmptyView().frame(width: 0, height: 0)
                             })
-                            color
-                                .frame(width: 20, height: 20)
-                                .overlay {
-                                    ColorPicker("Text Color", selection: $color)
-                                        .labelsHidden()
-                                        .opacity(0.015)
-                                        .frame(width: 20, height: 20)
-                                        .contentShape(Rectangle())
-                                }
-                                .overlay(
-                                    Circle()
-                                        .stroke(.gray.opacity(0.5), lineWidth: 5)
-                                        .frame(width: 20, height: 20)
-                                )
-                                .clipShape(.circle)
                         }
                         .padding()
-                    }
-                    .onChange(of: color) { newValue, oldValue in
-                        if newValue != oldValue && !colorBuffer {
-                            colorBuffer = true
-                            setColor(color: color)
-                            checkAttributes()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                colorBuffer = false
-                            }
-                        }
                     }
                     Spacer().frame(width: 10)
 
@@ -428,8 +401,6 @@ struct NoteEditor: View {
                 bold = resolved.isBold
                 italic = resolved.isItalic
                 size = resolved.pointSize
-                color = Color(container.foregroundColor ?? .primary)
-                //            container.font = currentFont
             }
         }
     }
@@ -438,13 +409,6 @@ struct NoteEditor: View {
             note.text.transformAttributes(in: &selection) { container in
                 let currentFont = container.font ?? .default
                 container.font = currentFont.pointSize(size)
-            }
-        }
-    }
-    func setColor(color: Color) {
-        DispatchQueue.main.async {
-            note.text.transformAttributes(in: &selection) { container in
-                container.foregroundColor = color
             }
         }
     }
