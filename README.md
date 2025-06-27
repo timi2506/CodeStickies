@@ -12,4 +12,5 @@ It has a ton of features! Every Release should include a "Get_Started.stickies" 
 [Here](https://github.com/timi2506/CodeStickies/releases)
 
 ## Requirements
-macOS 15.0 or higher on an Apple Silicon or Intel based Mac
+macOS 26.0 or higher on an Apple Silicon or Intel based Mac
+(For macOS 15.0 please check out [CodeStickies 1.0](https://github.com/timi2506/CodeStickies/releases/tag/1.1.1))
