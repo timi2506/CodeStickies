@@ -65,9 +65,9 @@ struct CodeStickiesApp: App {
             ) { result in
                 switch result {
                 case .success(let url):
-                    alert("Success", description: "Successfully exported Notes", style: .informational)
+                    alert("Successly exported Notes", description: "Saved to: \"\(url.path(percentEncoded: false))\"", style: .informational)
                     document = nil
-                case .failure(let error):
+                case .failure(_):
                     alert("Error", description: "An Error occured exporting Notes", style: .informational)
                     document = nil
                 }
@@ -86,6 +86,7 @@ struct CodeStickiesApp: App {
         }
         .windowStyle(.plain)
         .commands {
+            TextEditingCommands()
             CommandGroup(replacing: .appVisibility, addition: {
                 Button("Close Main Window") {
                     dismissWindow.callAsFunction(id: "main")
@@ -144,8 +145,8 @@ struct CodeStickiesApp: App {
                     defaultFilename: note.note.title ?? "Untitled Note"
                 ) { result in
                     switch result {
-                    case .success(_):
-                        CodeStickies.alert("Success", description: "Successfully exported Note", style: .informational)
+                    case .success(let url):
+                        CodeStickies.alert("Successly exported Notes", description: "Saved to: \"\(url.path(percentEncoded: false))\"", style: .informational)
                         dismissWindow(id: "exportSingleNote")
                     case .failure(_):
                         CodeStickies.alert("Error", description: "An Error occured exporting Note", style: .informational)
@@ -282,7 +283,7 @@ struct CodeStickiesApp: App {
                                 HStack {
                                     LazyVStack(alignment: .leading) {
                                         Text(note.title ?? "Untitled Note")
-                                        Text(note.text)
+                                        Text(note.text.string)
                                             .multilineTextAlignment(.leading)
                                             .foregroundStyle(.gray)
                                             .font(.caption)
@@ -341,10 +342,17 @@ struct CodeStickiesApp: App {
             do {
                 let data = try Data(contentsOf: url)
                 let decoded = try JSONDecoder().decode([Note].self, from: data)
-                if confirm("Import Method", description: "Choose what to do with the new Stickies", trueButton: "Add to Existing", falseButton: "Replace Existing") {
-                    skipDuplicatesImport(decoded)
-                } else {
-                    replaceExistingImport(decoded)
+                importAlert() { response in
+                    switch response {
+                    case .addDuplicates:
+                        addDuplicatesImport(decoded)
+                    case .cancel:
+                        print("Import Cancelled")
+                    case .skipDuplicates:
+                        skipDuplicatesImport(decoded)
+                    case .replaceExisting:
+                        replaceExistingImport(decoded)
+                    }
                 }
             } catch {
                 alert("Error Importing", description: error.localizedDescription, style: .critical)
@@ -366,6 +374,24 @@ struct CodeStickiesApp: App {
                 notesManager.notes.append(note)
             }
         }
+    }
+    func addDuplicatesImport(_ notes: [Note]) {
+        var notesToImport: [Note] = []
+        for note in notes {
+            if !notesManager.notes.contains(where: { $0.id == note.id }) {
+                notesToImport.append(note)
+            } else {
+                notesToImport.append(newID(for: note))
+            }
+        }
+        if confirm("Confirm", description: "This will import \(notesToImport.count) Note(s)") {
+            for note in notesToImport {
+                notesManager.notes.append(note)
+            }
+        }
+    }
+    func newID(for note: Note) -> Note {
+        return Note(id: UUID(), text: note.text)
     }
     func replaceExistingImport(_ notes: [Note]) {
         if confirm("Confirm", description: "This will remove your current Notes and import \(notes.count) new Note(s)") {
@@ -395,7 +421,7 @@ struct GenerableNote {
 }
 struct Note: Codable, Hashable, Identifiable {
     var id: UUID
-    var text: String
+    var text: AttributedString
     var title: String?
     var language: CodableLanguageConfiguration = CodableLanguageConfiguration(config: .none)
 }
@@ -513,12 +539,52 @@ func confirm(_ title: String? = nil, description: String, trueButton: String? = 
 
     alert.addButton(withTitle: trueButton ?? "OK")
     alert.addButton(withTitle: falseButton ?? "Cancel")
-
+    
     let response = alert.runModal()
     if response == .alertFirstButtonReturn {
         return true
     } else {
         return false
+    }
+}
+func importAlert(onResponse: @escaping (ImportAlertOptions) -> Void) {
+    let alert = NSAlert()
+    alert.messageText = "Choose an Import Method"
+    alert.informativeText = "Choose what to do with the new Stickies"
+    alert.addButton(withTitle: "Add Duplicates")
+    alert.addButton(withTitle: "Cancel")
+    alert.addButton(withTitle: "Skip Duplicates")
+    alert.addButton(withTitle: "Replace Existing")
+
+    let response = alert.runModal()
+    switch response {
+    case .alertFirstButtonReturn:
+        onResponse(.addDuplicates)
+    case .alertSecondButtonReturn:
+        onResponse(.cancel)
+    case .alertThirdButtonReturn:
+        onResponse(.skipDuplicates)
+    default:
+        onResponse(.replaceExisting)
+    }
+}
+
+enum ImportAlertOptions: CaseIterable {
+    case addDuplicates
+    case cancel
+    case skipDuplicates
+    case replaceExisting
+    var description: String {
+        switch self {
+        case .addDuplicates:
+            "Add Duplicates"
+        case .cancel:
+            "Cancel"
+        case .skipDuplicates:
+            "Skip Duplicates"
+        case .replaceExisting:
+            "Replace Existing"
+        }
     }
 }
 func alert(_ title: String, description: String, style: NSAlert.Style? = .informational) {

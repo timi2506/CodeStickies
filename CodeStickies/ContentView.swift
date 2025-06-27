@@ -13,8 +13,6 @@ import FoundationModels
 
 struct ContentView: View {
     @Binding var note: Note
-    @State private var position: CodeEditor.Position = CodeEditor.Position()
-    @State private var messages: Set<TextLocated<Message>> = Set()
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @State var minimized = false
     @State var savedWindowSize: CGSize = .zero
@@ -27,12 +25,13 @@ struct ContentView: View {
     @State var editTitle = false
     @State var showPackagify = false
     @State var aiView = false
-    @State var previousText: String?
+    @State var previousText: AttributedString?
     @State var aiPrompt = ""
     @State var aiState: AIState = .idle
     @State var modelSession: LanguageModelSession = LanguageModelSession(instructions: {
         "You are a helpful AI Text Assistant inside of a macOS App called \"CodeStickies\" that allows users to create small Windows - similar to Apple's Sticky Notes - where they can write down Notes or Code. ALWAYS JUST MODIFY THE NOTE do NOT add any Comments but rather just respond with the Modified Note directly without any CodeBlocks or similar."
     })
+    @State var attributedSelection = AttributedTextSelection()
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -136,9 +135,7 @@ struct ContentView: View {
             .background(.ultraThickMaterial)
             VStack {
                 if !minimized {
-                    CodeEditor(text: $note.text, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
-                        .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
-                        .environment(\.codeEditorLayoutConfiguration, .init(showMinimap: false, wrapText: true))
+                    NoteEditor(note: $note, selection: $attributedSelection)
                     if aiView {
                         GlassEffectContainer {
                             HStack {
@@ -152,15 +149,24 @@ struct ContentView: View {
                                             previousText = note.text
                                             aiState = .generating
                                             let session = modelSession.streamResponse(generating: GenerableNote.self, prompt: {
-                                                NotePrompt(userPrompt: aiPrompt, note: GenerableNote(text: note.text, title: note.title ?? "Untitled Note"))
+                                                NotePrompt(userPrompt: aiPrompt, note: GenerableNote(text: note.text.string, title: note.title ?? "Untitled Note"))
                                             })
                                             withAnimation() {
                                                 aiPrompt = ""
                                             }
-                                            for try await chunk in session {
-                                                note = Note(id: note.id, text: chunk.text ?? "", title: note.title, language: note.language)
+                                            do {
+                                                for try await chunk in session {
+                                                    note = Note(id: note.id, text: AttributedString(chunk.text ?? ""), title: note.title, language: note.language)
+                                                }
+                                                aiState = .finished
+                                            } catch {
+                                                switch error {
+                                                case LanguageModelSession.GenerationError.guardrailViolation:
+                                                    aiState = .error(error: "Unsafe Content Detected")
+                                                default:
+                                                    aiState = .error(error: error.localizedDescription)
+                                                }
                                             }
-                                            aiState = .finished
                                         }
                                     }) {
                                         Image(systemName: "paperplane.fill")
@@ -170,6 +176,16 @@ struct ContentView: View {
                                     .buttonStyle(.plain)
                                     .labelStyle(.iconOnly)
                                     .disabled(aiState == .generating)
+                                } else {
+                                    Button(action: {
+                                        aiView = false
+                                    }) {
+                                        Image(systemName: "xmark")
+                                            .padding(5)
+                                            .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .labelStyle(.iconOnly)
                                 }
                             }
                             .padding(2.5)
@@ -186,6 +202,11 @@ struct ContentView: View {
                                         .padding(.horizontal, 5)
                                 case .finished:
                                     Text("Finished Generating")
+                                        .padding(.horizontal)
+                                case .error(error: let error):
+                                    Text(error)
+                                        .foregroundStyle(.red)
+                                        .lineLimit(1)
                                         .padding(.horizontal)
                                 }
                                 Spacer()
@@ -208,9 +229,7 @@ struct ContentView: View {
                         }
                     }
                 } else if resizing {
-                    CodeEditor(text: $note.text, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
-                        .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
-                        .environment(\.codeEditorLayoutConfiguration, .init(showMinimap: false, wrapText: true))
+                    NoteEditor(note: $note, selection: $attributedSelection)
                         .frame(height: resizeHeight)
                 } else {
                     Rectangle()
@@ -221,15 +240,14 @@ struct ContentView: View {
         }
         .popover(isPresented: $runSheet) {
             Form {
-                RunView(code: Binding(get: { note.text }, set: { newValue in note.text = newValue ?? "" }))
+                RunView(code: Binding(get: { note.text.string }, set: { newValue in note.text.string = newValue ?? "" }))
             }
             .formStyle(.grouped)
             .frame(minWidth: 350, minHeight: 250)
         }
         .popover(isPresented: $showPackagify) {
-            PackagifyView(code: $note.text)
+            PackagifyView(code: $note.text.string)
                 .frame(minWidth: 500, minHeight: 250)
-
         }
         
     }
@@ -247,6 +265,298 @@ struct ContentView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 minimized = true
                 resizing = false
+            }
+        }
+    }
+    
+}
+
+struct NoteEditor: View {
+    @Binding var note: Note
+    @Environment(\.colorScheme) private var colorScheme: ColorScheme
+    @State private var position: CodeEditor.Position = CodeEditor.Position()
+    @State private var messages: Set<TextLocated<Message>> = Set()
+    @Binding var selection: AttributedTextSelection
+    @State var alignment: Alignment = .topTrailing
+    @Environment(\.fontResolutionContext) var fontResolutionContext
+    @State var bold = false
+    @State var italic = false
+    @State var size: CGFloat = 0
+    @State var changeSize = false
+    @State var toolbarFont: Font = .body
+    @State var color: Color = .primary
+    @State var colorBuffer = false
+    var body: some View {
+        VStack {
+            if note.language.config == .none {
+                TextEditor(text: $note.text, selection: $selection)
+                    .background(.ultraThinMaterial)
+            } else {
+                CodeEditor(text: $note.text.string, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
+                    .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
+                    .environment(\.codeEditorLayoutConfiguration, .init(showMinimap: false, wrapText: true))
+            }
+        }
+        .overlay(alignment: alignment) {
+            if note.language.config == .none && selection != AttributedTextSelection() {
+                HStack {
+                    Spacer().frame(width: 10)
+                    Button(action: {
+                        note.text.transformAttributes(in: &selection) { container in
+                            let currentFont = container.font ?? .default
+                            let resolved = currentFont.resolve(in: fontResolutionContext)
+                            container.font = currentFont.bold(!resolved.isBold)
+                        }
+                        checkAttributes()
+                    }) {
+                        Image(systemName: "bold")
+                            .fontWeight(bold ? .black : .thin)
+                            .foregroundStyle(.primary)
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(.rect)
+                    .keyboardShortcut("B", modifiers: .command)
+                    .font(toolbarFont)
+                    Button(action: {
+                        note.text.transformAttributes(in: &selection) { container in
+                            let currentFont = container.font ?? .default
+                            let resolved = currentFont.resolve(in: fontResolutionContext)
+                            container.font = currentFont.italic(!resolved.isItalic)
+                        }
+                        checkAttributes()
+                    }) {
+                        Image(systemName: "italic")
+                            .bold(italic ? true : false)
+                            .foregroundStyle(.primary)
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(.rect)
+                    .keyboardShortcut("I", modifiers: .command)
+                    .font(toolbarFont)
+                    Button(action: {
+                        changeSize.toggle()
+                    }) {
+                        Text(size, format: .number)
+                    }
+                    .buttonStyle(.plain)
+                    .font(toolbarFont)
+                    .popover(isPresented: $changeSize) {
+                        HStack {
+                            TextField("Font Size", value: Binding(get: {
+                                size
+                            }, set: { newValue in
+                                setSize(size: newValue ?? 1)
+                                checkAttributes()
+                            }), format: .number)
+                            Stepper(value: Binding(
+                                get: { size }, set: { newValue in
+                                    setSize(size: newValue)
+                                    checkAttributes()
+                                }
+                            ), label: {
+                                EmptyView().frame(width: 0, height: 0)
+                            })
+                            color
+                                .frame(width: 20, height: 20)
+                                .overlay {
+                                    ColorPicker("Text Color", selection: $color)
+                                        .labelsHidden()
+                                        .opacity(0.015)
+                                        .frame(width: 20, height: 20)
+                                        .contentShape(Rectangle())
+                                }
+                                .overlay(
+                                    Circle()
+                                        .stroke(.gray.opacity(0.5), lineWidth: 5)
+                                        .frame(width: 20, height: 20)
+                                )
+                                .clipShape(.circle)
+                        }
+                        .padding()
+                    }
+                    .onChange(of: color) { newValue, oldValue in
+                        if newValue != oldValue && !colorBuffer {
+                            colorBuffer = true
+                            setColor(color: color)
+                            checkAttributes()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                colorBuffer = false
+                            }
+                        }
+                    }
+                    Spacer().frame(width: 10)
+
+                }
+                .padding(5)
+                .glassEffect(.regular.interactive(), in: .capsule)
+                .contentShape(.capsule)
+                .contextMenu {
+                    Picker("Alignment", selection: Binding(get: {
+                        TextEditingToolbar(from: alignment)
+                    }, set: { newValue in
+                        withAnimation() {
+                            alignment = newValue.value
+                        }
+                    })) {
+                        ForEach(TextEditingToolbar.allCases, id: \.self) { alignment in
+                            Text(alignment.description)
+                                .tag(alignment)
+                        }
+                    }
+                    Picker("Size", selection: Binding(get: { ToolbarSize(from: toolbarFont) }, set: { newValue in
+                        toolbarFont = newValue.font
+                    })) {
+                        ForEach(ToolbarSize.allCases, id: \.self) { font in
+                            Text(font.fontDescription)
+                                .tag(font)
+                        }
+                    }
+                }
+                .padding(5)
+
+            }
+        }
+        .onChange(of: selection) {
+            checkAttributes()
+        }
+    }
+    func checkAttributes() {
+        DispatchQueue.main.async {
+            note.text.transformAttributes(in: &selection) { container in
+                let currentFont = container.font ?? .default
+                let resolved = currentFont.resolve(in: fontResolutionContext)
+                bold = resolved.isBold
+                italic = resolved.isItalic
+                size = resolved.pointSize
+                color = Color(container.foregroundColor ?? .primary)
+                //            container.font = currentFont
+            }
+        }
+    }
+    func setSize(size: CGFloat) {
+        DispatchQueue.main.async {
+            note.text.transformAttributes(in: &selection) { container in
+                let currentFont = container.font ?? .default
+                container.font = currentFont.pointSize(size)
+            }
+        }
+    }
+    func setColor(color: Color) {
+        DispatchQueue.main.async {
+            note.text.transformAttributes(in: &selection) { container in
+                container.foregroundColor = color
+            }
+        }
+    }
+    enum ToolbarSize: Hashable, CaseIterable {
+        init(from font: Font) {
+            switch font {
+            case .body:
+                    self = .body
+            case .title:
+                self = .title
+            case .title2:
+                self = .title2
+            case .title3:
+                self = .title3
+            case .largeTitle:
+                self = .largeTitle
+            default:
+                self = .body
+            }
+        }
+        case body
+        case title3
+        case title2
+        case title
+        case largeTitle
+        
+        var font: Font {
+            switch self {
+            case .body:
+                    .body
+            case .title:
+                    .title
+            case .title2:
+                    .title2
+            case .title3:
+                    .title3
+            case .largeTitle:
+                    .largeTitle
+            }
+        }
+        var fontDescription: String {
+            switch self {
+            case .body:
+                "Regular"
+            case .title3:
+                "Medium"
+            case .title2:
+                "Large"
+            case .title:
+                "Extra Large"
+            case .largeTitle:
+                "Huge"
+            }
+        }
+    }
+    enum TextEditingToolbar: Hashable, CaseIterable {
+        init(from alignment: Alignment) {
+            switch alignment {
+            case .topLeading:
+                self = .topLeading
+            case .top:
+                self = .top
+            case .topTrailing:
+                self = .topLeading
+            case .bottomLeading:
+                self = .bottomLeading
+            case .bottom:
+                self = .bottom
+            case .bottomTrailing:
+                self = .bottomTrailing
+            default:
+                self = .topTrailing
+            }
+            
+        }
+        case topLeading
+        case top
+        case topTrailing
+        case bottomLeading
+        case bottom
+        case bottomTrailing
+        
+        var description: String {
+            switch self {
+            case .topLeading:
+                "Top Left"
+            case .top:
+                "Top Center"
+            case .topTrailing:
+                "Top Right"
+            case .bottomLeading:
+                "Bottom Left"
+            case .bottom:
+                "Bottom Center"
+            case .bottomTrailing:
+                "Bottom Right"
+            }
+        }
+        var value: Alignment {
+            switch self {
+            case .topLeading:
+                    .topLeading
+            case .top:
+                    .top
+            case .topTrailing:
+                    .topTrailing
+            case .bottomLeading:
+                    .bottomLeading
+            case .bottom:
+                    .bottom
+            case .bottomTrailing:
+                    .bottomTrailing
             }
         }
     }
@@ -323,8 +633,36 @@ struct CustomPickerItem<CustomType>: Identifiable {
     let name: String
 }
 
-enum AIState {
+enum AIState: Equatable {
     case idle
     case generating
     case finished
+    case error(error: String)
+}
+
+extension AttributedString {
+    var string: String {
+        get {
+            return String(self.characters)
+        }
+        set {
+            self = AttributedString(newValue)
+        }
+    }
+}
+
+struct ScaledToLayoutView<Content: View>: View {
+    let scale: CGFloat
+    let content: () -> Content
+
+    var body: some View {
+        GeometryReader { geo in
+            content()
+                .scaleEffect(scale)
+                .frame(
+                    width: geo.size.width * scale,
+                    height: geo.size.height * scale
+                )
+        }
+    }
 }

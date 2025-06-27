@@ -236,7 +236,7 @@ struct RecentFileView: View {
                     .bold()
                     .lineLimit(1)
                 
-                Text(note.text)
+                Text(note.text.string)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
