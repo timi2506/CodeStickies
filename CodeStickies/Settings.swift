@@ -10,68 +10,13 @@ struct SettingsView: View {
                     .tabItem {
                         Label("Backups", systemImage: "cloud")
                     }
-                about
+                SharedAboutView()
                     .tabItem {
                         Label("About", systemImage: "info.circle")
                     }
             }
             .tabViewStyle(.tabBarOnly)
         }
-    }
-    @State var aboutSelectServiceAlert = false
-    var about: some View {
-        Form {
-            HStack {
-                Spacer()
-                VStack {
-                    Image(nsImage: NSApp.applicationIconImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 140.0, height: 140.0)
-                        .background {
-                            Image(nsImage: NSApp.applicationIconImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 140.0, height: 140.0)
-                                .blur(radius: 50)
-                        }
-                    Text("CodeStickies")
-                        .font(.system(size: 36.0))
-                        .bold()
-                    
-                    Spacer().frame(height: 7.0)
-                    
-                    Text("Version \(NSApp.currentAppVersion)")
-                        .font(.system(size: 13.0))
-                        .fontWeight(.light)
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-            }
-            SocialButton(name: "timi2506", description: "Developer") {
-                aboutSelectServiceAlert = true
-            }
-            Section("Special Thanks") {
-                SocialButton(name: "xezrunner", description: "Helping with things like swizzling NSWindow Properties and other advanced things :D", url: URL(string: "https://github.com/xezrunner")!)
-                PackageButton(imageURL: nil, name: "CodeEditorView", description: "SwiftUI code editor view for iOS, visionOS, and macOS", url: URL(string: "https://github.com/mchakravarty/CodeEditorView")!)
-            }
-        }
-        .formStyle(.grouped)
-        .alert("Choose a Social Platform to check out", isPresented: $aboutSelectServiceAlert, actions: {
-            Button("GitHub", image: ImageResource(name: "github", bundle: .main)) {
-                NSWorkspace.shared.open(URL(string: "https://github.com/timi2506")!)
-            }
-            .buttonStyle(.borderedProminent)
-            
-            Button("Twitter", image: ImageResource(name: "twitter", bundle: .main)) {
-                NSWorkspace.shared.open(URL(string: "https://x.com/timi2506")!)
-            }
-            .buttonStyle(.borderedProminent)
-
-            Button("Cancel", role: .cancel) {
-                aboutSelectServiceAlert = false
-            }
-        })
     }
     @StateObject var bookmarkManager = BookmarkManager.shared
     @StateObject var backupScheduler = BackupScheduler.shared
@@ -221,5 +166,65 @@ struct PackageButton: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+    }
+}
+
+
+struct SharedAboutView: View {
+    @State var aboutSelectServiceAlert = false
+
+    var body: some View {
+        Form {
+            HStack {
+                Spacer()
+                VStack {
+                    Image(nsImage: NSApp.applicationIconImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 140.0, height: 140.0)
+                        .background {
+                            Image(nsImage: NSApp.applicationIconImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 140.0, height: 140.0)
+                                .blur(radius: 50)
+                        }
+                    Text("CodeStickies")
+                        .font(.system(size: 36.0))
+                        .bold()
+                    
+                    Spacer().frame(height: 7.0)
+                    
+                    Text("Version \(NSApp.currentAppVersion)")
+                        .font(.system(size: 13.0))
+                        .fontWeight(.light)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            }
+            SocialButton(name: "timi2506", description: "Developer") {
+                aboutSelectServiceAlert = true
+            }
+            Section("Special Thanks") {
+                SocialButton(name: "xezrunner", description: "Helping with things like swizzling NSWindow Properties and other advanced things :D", url: URL(string: "https://github.com/xezrunner")!)
+                PackageButton(imageURL: nil, name: "CodeEditorView", description: "SwiftUI code editor view for iOS, visionOS, and macOS", url: URL(string: "https://github.com/mchakravarty/CodeEditorView")!)
+            }
+        }
+        .formStyle(.grouped)
+        .alert("Choose a Social Platform to check out", isPresented: $aboutSelectServiceAlert, actions: {
+            Button("GitHub", image: ImageResource(name: "github", bundle: .main)) {
+                NSWorkspace.shared.open(URL(string: "https://github.com/timi2506")!)
+            }
+            .buttonStyle(.borderedProminent)
+            
+            Button("Twitter", image: ImageResource(name: "twitter", bundle: .main)) {
+                NSWorkspace.shared.open(URL(string: "https://x.com/timi2506")!)
+            }
+            .buttonStyle(.borderedProminent)
+
+            Button("Cancel", role: .cancel) {
+                aboutSelectServiceAlert = false
+            }
+        })
     }
 }

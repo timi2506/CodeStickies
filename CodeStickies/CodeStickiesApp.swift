@@ -113,6 +113,11 @@ struct CodeStickiesApp: App {
         .windowStyle(.plain)
         .commands {
             TextEditingCommands()
+            CommandGroup(replacing: .appInfo, addition: {
+                Button("About CodeStickies") {
+                    openWindow.callAsFunction(id: "sharedAboutView")
+                }
+            })
             CommandGroup(replacing: .appVisibility, addition: {
                 Button("Close Main Window") {
                     dismissWindow.callAsFunction(id: "main")
@@ -256,6 +261,11 @@ struct CodeStickiesApp: App {
                 .keyboardShortcut("N", modifiers: [.command, .option])
             })
         }
+        .handlesExternalEvents(matching: [])
+        WindowGroup(id: "sharedAboutView") {
+            SharedAboutView()
+        }
+        .windowStyle(.titleBar)
         .handlesExternalEvents(matching: [])
         MenuBarExtra(isInserted: $showInMenuBar, content: {
             NavigationStack {
