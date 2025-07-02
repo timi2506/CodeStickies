@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftUIIntrospect
 import CodeEditorView
 import LanguageSupport
 import FoundationModels
@@ -121,6 +120,17 @@ struct ContentView: View {
                     runSheet = true
                 }) {
                     Image(systemName: "play.fill")
+                        .bold()
+                        .foregroundStyle(.gray)
+                        .frame(width: 15, height: 15)
+                        .background(.gray.opacity(0.05))
+                        .cornerRadius(2.5)
+                        .padding(.vertical, 5)
+                }
+                .buttonStyle(.plain)
+                .contentShape(.rect)
+                ShareLink(item: note.text, preview: SharePreview(note.text.string)) {
+                    Image(systemName: "square.and.arrow.up.fill")
                         .bold()
                         .foregroundStyle(.gray)
                         .frame(width: 15, height: 15)

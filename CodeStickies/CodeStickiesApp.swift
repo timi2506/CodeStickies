@@ -9,11 +9,40 @@ import SwiftUI
 import LanguageSupport
 import UniformTypeIdentifiers
 
+class AppDelegate: NSObject, NSApplicationDelegate {
+    private(set) var launchDate = Date()
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        launchDate = Date()
+    }
+    
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            print("Received URL: \(url)")
+            if url.absoluteString == "codestickies://refresh" {
+                BookmarkManager.shared.createBackup()
+                print(launchDate.timeIntervalSinceNow)
+                if launchDate.timeIntervalSinceNow <= -1 {
+                    print("Longer than 1 sec")
+                } else {
+                    print("Less than 1 sec")
+                    exit(0)
+                }
+            } else {
+//                importStickies(from: url)
+            }
+        }
+    }
+}
+
 @main
 struct CodeStickiesApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.openWindow) private var openWindow
-    @AppStorage("floatAboveWindows") var floatAboveWindows = true
+    @AppStorage("windowMode") var windowMode = 0
+
     init() {
         NSWindow.swizzleCanBecomeKey()
         Task {
@@ -72,9 +101,6 @@ struct CodeStickiesApp: App {
                     document = nil
                 }
             }
-            .onOpenURL(perform: { url in
-                importStickies(from: url)
-            })
             .fileImporter(isPresented: $importNotes, allowedContentTypes: [stickiesType], onCompletion: { result in
                 switch result {
                 case .success(let url):
@@ -167,7 +193,6 @@ struct CodeStickiesApp: App {
             }
         }
         .windowStyle(.plain)
-        .windowLevel(.floating)
         .handlesExternalEvents(matching: [])
         WindowGroup(id: "note", for: UUID.self) { uuid in
             NavigationStack {
@@ -201,13 +226,22 @@ struct CodeStickiesApp: App {
         // macOS 15.0, iOS unavailable, tvOS unavailable, watchOS unavailable, visionOS unavailable
         .windowManagerRole(.associated)
         // iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0
-        .windowLevel(floatAboveWindows ? .floating : .normal)
+        .windowLevel(windowMode == 0 ? .normal : windowMode == 1 ? .floating : windowMode == 2 ? .desktop : .automatic)
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
         .commands {
-            CommandGroup(after: .windowArrangement){
-                Toggle("Float on Top", isOn: $floatAboveWindows)
-                    .keyboardShortcut("F", modifiers: [.command, .option])
+            CommandGroup(after: .windowArrangement) {
+                Picker("Window Level", selection: $windowMode) {
+                    Text("Normal")
+                        .tag(0)
+                        .keyboardShortcut("W", modifiers: [.command, .option])
+                    Text("Floating")
+                        .tag(1)
+                        .keyboardShortcut("F", modifiers: [.command, .option])
+                    Text("Desktop")
+                        .tag(2)
+                        .keyboardShortcut("D", modifiers: [.command, .option])
+                }
             }
             CommandGroup(replacing: .newItem, addition: {
                 Button("New Note") {
@@ -321,6 +355,8 @@ struct CodeStickiesApp: App {
             Image(systemName: "note.text")
         }
         .menuBarExtraStyle(.window)
+        Settings{ SettingsView() }
+            .windowStyle(.hiddenTitleBar)
     }
     func createAndOpenNote() {
         let id = UUID()

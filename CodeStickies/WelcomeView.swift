@@ -75,7 +75,7 @@ struct WelcomeView: View {
                     
                     Spacer().frame(height: 7.0)
                     
-                    Text("Version \(getCurrentAppVersion())")
+                    Text("Version \(NSApp.currentAppVersion)")
                         .font(.system(size: 13.0))
                         .fontWeight(.light)
                         .foregroundColor(.gray)
@@ -142,11 +142,6 @@ struct WelcomeView: View {
             .padding(5)
         }
         .frame(width: 745, height: 450.0)
-    }
-    
-    private func getCurrentAppVersion() -> String {
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        return appVersion
     }
 }
 
@@ -297,5 +292,12 @@ public extension Image {
 public extension String {
     func removing(_ string: String) -> String {
         self.replacingOccurrences(of: string, with: "")
+    }
+}
+
+public extension NSApplication {
+    var currentAppVersion: String {
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        return appVersion
     }
 }
