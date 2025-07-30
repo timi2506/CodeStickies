@@ -1,14 +1,76 @@
 {
   "fill" : {
-    "solid" : "extended-srgb:0.00000,0.47843,1.00000,1.00000"
+    "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
   },
   "groups" : [
     {
+      "blur-material" : 0.5,
       "layers" : [
         {
-          "glass" : false,
-          "image-name" : "Container.png",
-          "name" : "Container"
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
+            }
+          ],
+          "glass-specializations" : [
+            {
+              "value" : false
+            },
+            {
+              "appearance" : "dark",
+              "value" : false
+            }
+          ],
+          "image-name" : "textlg.png",
+          "name" : "textlg",
+          "position" : {
+            "scale" : 0.93,
+            "translation-in-points" : [
+              47.28134525307411,
+              130.23347079456562
+            ]
+          }
+        },
+        {
+          "image-name-specializations" : [
+            {
+              "value" : "innerlg.png"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "innerlgd.png"
+            }
+          ],
+          "name" : "innerlgd",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              43.44716841229766,
+              129.98057827953568
+            ]
+          }
+        },
+        {
+          "image-name-specializations" : [
+            {
+              "value" : "outerlg.png"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "outerlgd.png"
+            }
+          ],
+          "name" : "outerlgd",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              43.44716841229766,
+              129.98057827953568
+            ]
+          }
         }
       ],
       "shadow" : {
@@ -21,10 +83,234 @@
       }
     },
     {
+      "blur-material" : 0.9,
       "layers" : [
         {
-          "image-name" : "fewew.png",
-          "name" : "Grid"
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "image-name" : "textmed.png",
+          "name" : "textmed",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 0.93,
+            "translation-in-points" : [
+              -124.97229344572987,
+              -67.25445559085082
+            ]
+          }
+        },
+        {
+          "image-name-specializations" : [
+            {
+              "value" : "innermed.png"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "dinnermed.png"
+            }
+          ],
+          "name" : "dinnermed",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -125.9260092131167,
+              -55.70931023628856
+            ]
+          }
+        },
+        {
+          "image-name-specializations" : [
+            {
+              "value" : "outermed.png"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "doutermed.png"
+            }
+          ],
+          "name" : "doutermed",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -125.9260092131167,
+              -55.70931023628856
+            ]
+          }
+        }
+      ],
+      "opacity" : 0.73,
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 1
+      }
+    },
+    {
+      "blur-material" : 1,
+      "hidden" : false,
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name-specializations" : [
+            {
+              "value" : "innersml.png"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "innersmld.png"
+            }
+          ],
+          "name" : "innersmld",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              141.1318150529585,
+              -154.09237397625157
+            ]
+          }
+        },
+        {
+          "image-name-specializations" : [
+            {
+              "value" : "outersml.png"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "outersmld.png"
+            }
+          ],
+          "name" : "outersmld",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              141.1318150529585,
+              -154.09237397625157
+            ]
+          }
+        }
+      ],
+      "opacity" : 0.57,
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 1
+      }
+    },
+    {
+      "hidden" : false,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-gray:0.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "large.png",
+          "name" : "large",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              43.44716841229766,
+              129.98057827953568
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-gray:0.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "med.png",
+          "name" : "med",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -125.9260092131167,
+              -55.70931023628856
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-gray:0.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "small.png",
+          "name" : "small",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              141.1318150529585,
+              -154.09237397625157
+            ]
+          }
+        },
+        {
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "image-name" : "Grid.png",
+          "name" : "Grid",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
         }
       ],
       "shadow" : {

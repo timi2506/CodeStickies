@@ -31,223 +31,145 @@ struct ContentView: View {
         "You are a helpful AI Text Assistant inside of a macOS App called \"CodeStickies\" that allows users to create small Windows - similar to Apple's Sticky Notes - where they can write down Notes or Code. ALWAYS JUST MODIFY THE NOTE do NOT add any Comments but rather just respond with the Modified Note directly without any CodeBlocks or similar."
     })
     @State var attributedSelection = AttributedTextSelection()
+    @AppStorage("noteCornerRadius") var windowCornerRadius: Int = 15
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button(action: {
-                    dismissWindow.callAsFunction()
-                }) {
-                    Image(systemName: "xmark")
-                        .bold()
-                        .foregroundStyle(.gray)
-                        .frame(width: 15, height: 15)
-                        .background(.gray.opacity(0.05))
-                        .cornerRadius(2.5)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.plain)
-                .contentShape(.rect)
-                .keyboardShortcut("W", modifiers: .command)
-                Button(action: {
-                    toggleMinimize()
-                }) {
-                    Image(systemName: "minus")
-                        .bold()
-                        .foregroundStyle(.gray)
-                        .frame(width: 15, height: 15)
-                        .background(.gray.opacity(0.05))
-                        .cornerRadius(2.5)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.plain)
-                .contentShape(.rect)
-                .keyboardShortcut("M", modifiers: .command)
-
-                if editTitle {
-                    TextField(note.title ?? "Untitled Note", text: Binding(get: {
-                        note.title ?? ""
-                    }, set: { newValue in
-                        if newValue.isEmpty {
-                            note.title = nil
-                        } else {
-                            note.title = newValue
-                        }
-                    }), onCommit: { editTitle.toggle() })
-                    .textFieldStyle(.plain)
-                    .lineLimit(1)
-                } else {
-                    Text(note.title ?? "Untitled Note")
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                HStack {
+                    windowButtons(geometry: geometry)
+                    
+                    if editTitle {
+                        TextField(note.title ?? "Untitled Note", text: Binding(get: {
+                            note.title ?? ""
+                        }, set: { newValue in
+                            if newValue.isEmpty {
+                                note.title = nil
+                            } else {
+                                note.title = newValue
+                            }
+                        }), onCommit: { editTitle.toggle() })
+                        .textFieldStyle(.plain)
                         .lineLimit(1)
-                        .foregroundStyle(.gray.opacity(0.5))
-                        .onTapGesture {
-                            editTitle.toggle()
-                        }
-                }
-                Spacer()
-                LanguagePicker("Language", selection: $note.language.config)
-                    .lineLimit(1)
-                if SystemLanguageModel.default.availability == .available {
-                    Button(action: {
-                        withAnimation() {
-                            aiView.toggle()
-                        }
-                    }) {
-                        Image(systemName: "apple.intelligence")
-                            .bold()
-                            .foregroundStyle(.gray)
-                            .frame(width: 15, height: 15)
-                            .background(.gray.opacity(0.05))
-                            .cornerRadius(2.5)
-                            .padding(.vertical, 5)
+                    } else {
+                        Text(note.title ?? "Untitled Note")
+                            .lineLimit(1)
+                            .foregroundStyle(.gray.opacity(0.5))
+                            .onTapGesture {
+                                editTitle.toggle()
+                            }
                     }
-                    .buttonStyle(.plain)
-                    .contentShape(.rect)
+                    Spacer()
+                    buttons()
                 }
-                Button(action: {
-                    showPackagify = true
-                }) {
-                    Image(systemName: "shippingbox.fill")
-                        .bold()
-                        .foregroundStyle(.gray)
-                        .frame(width: 15, height: 15)
-                        .background(.gray.opacity(0.05))
-                        .cornerRadius(2.5)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.plain)
-                .contentShape(.rect)
-                Button(action: {
-                    runSheet = true
-                }) {
-                    Image(systemName: "play.fill")
-                        .bold()
-                        .foregroundStyle(.gray)
-                        .frame(width: 15, height: 15)
-                        .background(.gray.opacity(0.05))
-                        .cornerRadius(2.5)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.plain)
-                .contentShape(.rect)
-                ShareLink(item: note.text, preview: SharePreview(note.text.string)) {
-                    Image(systemName: "square.and.arrow.up.fill")
-                        .bold()
-                        .foregroundStyle(.gray)
-                        .frame(width: 15, height: 15)
-                        .background(.gray.opacity(0.05))
-                        .cornerRadius(2.5)
-                        .padding(.vertical, 5)
-                }
-                .buttonStyle(.plain)
-                .contentShape(.rect)
-            }
-            .padding(.horizontal, 10)
-            .background(.ultraThickMaterial)
-            VStack {
-                if !minimized {
-                    NoteEditor(note: $note, selection: $attributedSelection)
-                    if aiView {
-                        GlassEffectContainer {
-                            HStack {
-                                TextField("Describe Changes", text: $aiPrompt)
-                                    .textFieldStyle(.plain)
-                                    .padding(5)
-                                    .glassEffect(in: RoundedRectangle(cornerRadius: 5))
-                                if !aiPrompt.isEmpty {
-                                    Button(action: {
-                                        Task {
-                                            previousText = note.text
-                                            aiState = .generating
-                                            let session = modelSession.streamResponse(generating: GenerableNote.self, prompt: {
-                                                NotePrompt(userPrompt: aiPrompt, note: GenerableNote(text: note.text.string, title: note.title ?? "Untitled Note"))
-                                            })
-                                            withAnimation() {
-                                                aiPrompt = ""
-                                            }
-                                            do {
-                                                for try await chunk in session {
-                                                    note = Note(id: note.id, text: AttributedString(chunk.text ?? ""), title: note.title, language: note.language)
+                .padding(.horizontal, 10)
+                .background(.ultraThickMaterial)
+                VStack {
+                    if !minimized {
+                        NoteEditor(note: $note, selection: $attributedSelection)
+                        if aiView {
+                            GlassEffectContainer {
+                                HStack {
+                                    TextField("Describe Changes", text: $aiPrompt)
+                                        .textFieldStyle(.plain)
+                                        .padding(5)
+                                        .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                                    if !aiPrompt.isEmpty {
+                                        Button(action: {
+                                            Task {
+                                                previousText = note.text
+                                                aiState = .generating
+                                                let session = modelSession.streamResponse(generating: GenerableNote.self, prompt: {
+                                                    NotePrompt(userPrompt: aiPrompt, note: GenerableNote(text: note.text.string, title: note.title ?? "Untitled Note"))
+                                                })
+                                                withAnimation() {
+                                                    aiPrompt = ""
                                                 }
-                                                aiState = .finished
-                                            } catch {
-                                                switch error {
-                                                case LanguageModelSession.GenerationError.guardrailViolation:
-                                                    aiState = .error(error: "Unsafe Content Detected")
-                                                default:
-                                                    aiState = .error(error: error.localizedDescription)
+                                                do {
+                                                    for try await chunk in session {
+                                                        note = Note(id: note.id, text: AttributedString(chunk.text ?? ""), title: note.title, language: note.language)
+                                                    }
+                                                    aiState = .finished
+                                                } catch {
+                                                    switch error {
+                                                    case LanguageModelSession.GenerationError.guardrailViolation:
+                                                        aiState = .error(error: "Unsafe Content Detected")
+                                                    default:
+                                                        aiState = .error(error: error.localizedDescription)
+                                                    }
                                                 }
                                             }
+                                        }) {
+                                            Image(systemName: "paperplane.fill")
+                                                .padding(5)
+                                                .glassEffect(in: RoundedRectangle(cornerRadius: 5))
                                         }
-                                    }) {
-                                        Image(systemName: "paperplane.fill")
-                                            .padding(5)
-                                            .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                                        .buttonStyle(.plain)
+                                        .labelStyle(.iconOnly)
+                                        .disabled(aiState == .generating)
+                                    } else {
+                                        Button(action: {
+                                            aiView = false
+                                        }) {
+                                            Image(systemName: "xmark")
+                                                .padding(5)
+                                                .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                                        }
+                                        .buttonStyle(.plain)
+                                        .labelStyle(.iconOnly)
                                     }
-                                    .buttonStyle(.plain)
-                                    .labelStyle(.iconOnly)
-                                    .disabled(aiState == .generating)
-                                } else {
-                                    Button(action: {
-                                        aiView = false
-                                    }) {
-                                        Image(systemName: "xmark")
-                                            .padding(5)
-                                            .glassEffect(in: RoundedRectangle(cornerRadius: 5))
-                                    }
-                                    .buttonStyle(.plain)
-                                    .labelStyle(.iconOnly)
                                 }
+                                .padding(2.5)
                             }
-                            .padding(2.5)
-                        }
-                        .animation(.snappy, value: aiPrompt)
-                        if aiState != .idle {
-                            HStack {
-                                switch aiState {
-                                case .idle:
-                                    Text("Idle")
-                                        .padding(.horizontal)
-                                case .generating:
-                                    ProgressView().controlSize(.small)
-                                        .padding(.horizontal, 5)
-                                case .finished:
-                                    Text("Finished Generating")
-                                        .padding(.horizontal)
-                                case .error(error: let error):
-                                    Text(error)
-                                        .foregroundStyle(.red)
-                                        .lineLimit(1)
-                                        .padding(.horizontal)
-                                }
-                                Spacer()
-                                Button("Revert Changes") {
-                                    withAnimation() {
-                                        if let previousText {
-                                            note.text = previousText
-                                            aiState = .idle
+                            .animation(.snappy, value: aiPrompt)
+                            if aiState != .idle {
+                                HStack {
+                                    switch aiState {
+                                    case .idle:
+                                        Text("Idle")
+                                            .padding(.horizontal)
+                                    case .generating:
+                                        ProgressView().controlSize(.small)
+                                            .padding(.horizontal, 5)
+                                    case .finished:
+                                        Text("Finished Generating")
+                                            .padding(.horizontal)
+                                    case .error(error: let error):
+                                        Text(error)
+                                            .foregroundStyle(.red)
+                                            .lineLimit(1)
+                                            .padding(.horizontal)
+                                    }
+                                    Spacer()
+                                    Button("Revert Changes") {
+                                        withAnimation() {
+                                            if let previousText {
+                                                note.text = previousText
+                                                aiState = .idle
+                                            }
                                         }
                                     }
+                                    .buttonStyle(.borderedProminent)
+                                    .disabled(aiState != .finished || previousText == nil)
                                 }
-                                .buttonStyle(.borderedProminent)
-                                .disabled(aiState != .finished || previousText == nil)
+                                .frame(maxWidth: .infinity)
+                                .padding(5)
+                                .glassEffect(in: RoundedRectangle(cornerRadius: 5))
+                                .padding(.horizontal, 2.5)
+                                .animation(.snappy, value: aiState)
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding(5)
-                            .glassEffect(in: RoundedRectangle(cornerRadius: 5))
-                            .padding(.horizontal, 2.5)
-                            .animation(.snappy, value: aiState)
                         }
+                    } else if resizing {
+                        NoteEditor(note: $note, selection: $attributedSelection)
+                            .frame(height: resizeHeight)
+                    } else {
+                        Rectangle()
+                            .frame(width: 100, height: 1)
+                            .foregroundStyle(.clear)
                     }
-                } else if resizing {
-                    NoteEditor(note: $note, selection: $attributedSelection)
-                        .frame(height: resizeHeight)
-                } else {
-                    Rectangle()
-                        .frame(width: 100, height: 1)
-                        .foregroundStyle(.clear)
                 }
             }
         }
+        .clipShape(.rect(cornerRadius: CGFloat(windowCornerRadius)))
         .popover(isPresented: $runSheet) {
             Form {
                 RunView(code: Binding(get: { note.text.string }, set: { newValue in note.text.string = newValue ?? "" }))
@@ -259,12 +181,14 @@ struct ContentView: View {
             PackagifyView(code: $note.text.string)
                 .frame(minWidth: 500, minHeight: 250)
         }
+        .onWindowAppear { window = $0 }
         
     }
-    func toggleMinimize() {
+    @State var window: NSWindow?
+    func toggleMinimize(size: CGSize? = nil) {
         if minimized {
             resizing = true
-            resizeHeight = 100
+            resizeHeight = size?.height ?? 100
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 minimized = false
                 resizing = false
@@ -278,7 +202,173 @@ struct ContentView: View {
             }
         }
     }
-    
+    @AppStorage("compactMenu") var compactMenu = false
+    @ViewBuilder func buttons() -> some View {
+        if compactMenu {
+            Menu(content: {
+                LanguagePicker("Language", systemImage: "globe", selection: $note.language.config)
+                    .lineLimit(1)
+                if SystemLanguageModel.default.availability == .available {
+                    Toggle("Apple Intelligence", systemImage: "apple.intelligence", isOn: Binding(get: {
+                        aiView
+                    }, set: { bool in
+                        withAnimation() {
+                            aiView = bool
+                        }
+                    }))
+                }
+                Button("Packagify", systemImage: "shippingbox.fill") {
+                    showPackagify = true
+                }
+                Button("Run", systemImage: "play.fill") {
+                    runSheet = true
+                }
+                ShareLink("Export Note", item: note.text, preview: SharePreview(note.text.string))
+            }) {
+                Image(systemName: "ellipsis")
+                    .bold()
+                    .foregroundStyle(.gray)
+                    .frame(width: 15, height: 15)
+                    .background(.gray.opacity(0.05))
+                    .cornerRadius(2.5)
+                    .padding(.vertical, 5)
+            }
+            .menuStyle(.button)
+            .buttonStyle(.plain)
+            .contentShape(.rect)
+        } else {
+            LanguagePicker("Language", selection: $note.language.config)
+                .lineLimit(1)
+            if SystemLanguageModel.default.availability == .available {
+                Button(action: {
+                    withAnimation() {
+                        aiView.toggle()
+                    }
+                }) {
+                    Image(systemName: "apple.intelligence")
+                        .bold()
+                        .foregroundStyle(.gray)
+                        .frame(width: 15, height: 15)
+                        .background(.gray.opacity(0.05))
+                        .cornerRadius(2.5)
+                        .padding(.vertical, 5)
+                }
+                .buttonStyle(.plain)
+                .contentShape(.rect)
+            }
+            Button(action: {
+                showPackagify = true
+            }) {
+                Image(systemName: "shippingbox.fill")
+                    .bold()
+                    .foregroundStyle(.gray)
+                    .frame(width: 15, height: 15)
+                    .background(.gray.opacity(0.05))
+                    .cornerRadius(2.5)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.plain)
+            .contentShape(.rect)
+            Button(action: {
+                runSheet = true
+            }) {
+                Image(systemName: "play.fill")
+                    .bold()
+                    .foregroundStyle(.gray)
+                    .frame(width: 15, height: 15)
+                    .background(.gray.opacity(0.05))
+                    .cornerRadius(2.5)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.plain)
+            .contentShape(.rect)
+            ShareLink(item: note.text, preview: SharePreview(note.text.string)) {
+                Image(systemName: "square.and.arrow.up.fill")
+                    .bold()
+                    .foregroundStyle(.gray)
+                    .frame(width: 15, height: 15)
+                    .background(.gray.opacity(0.05))
+                    .cornerRadius(2.5)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.plain)
+            .contentShape(.rect)
+        }
+    }
+    var isKey: Bool { window?.isKeyWindow == true }
+    @AppStorage("alternativeWindowButtons") var alternativeWindowButtons = false
+    @ViewBuilder func windowButtons(geometry: GeometryProxy) -> some View {
+        if alternativeWindowButtons {
+            WindowButton(isKey: isKey, color: .windowRed, systemImage: "xmark") {
+                dismissWindow.callAsFunction()
+            }
+            .keyboardShortcut("W", modifiers: .command)
+            
+            WindowButton(isKey: isKey, color: .windowYellow, systemImage: "minus") {
+                toggleMinimize(size: geometry.size)
+            }
+            .keyboardShortcut("M", modifiers: .command)
+        } else {
+            Button(action: {
+                dismissWindow.callAsFunction()
+            }) {
+                Image(systemName: "xmark")
+                    .bold()
+                    .foregroundStyle(.gray)
+                    .frame(width: 15, height: 15)
+                    .background(.gray.opacity(0.05))
+                    .cornerRadius(2.5)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.plain)
+            .contentShape(.rect)
+            .keyboardShortcut("W", modifiers: .command)
+            Button(action: {
+                toggleMinimize(size: geometry.size)
+            }) {
+                Image(systemName: "minus")
+                    .bold()
+                    .foregroundStyle(.gray)
+                    .frame(width: 15, height: 15)
+                    .background(.gray.opacity(0.05))
+                    .cornerRadius(2.5)
+                    .padding(.vertical, 5)
+            }
+            .buttonStyle(.plain)
+            .contentShape(.rect)
+            .keyboardShortcut("M", modifiers: .command)
+        }
+    }
+}
+
+struct WindowButton: View {
+    var isKey: Bool
+    var color: Color
+    var systemImage: String
+    var action: () -> Void
+    @AppStorage("States.HoveringWindowButtons") var hovering = false
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Circle()
+                    .foregroundStyle(isKey ? color : .gray.opacity(0.25))
+                    .frame(width: 12.5, height: 12.5)
+                if hovering {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 7.5))
+                        .fontWeight(.black)
+                        .foregroundStyle(.black.opacity(0.5))
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .onHover(perform: { hovering = $0 })
+    }
+}
+
+extension Color {
+    static var windowRed: Color = Color(red: 1, green: 0.37, blue: 0.34)
+    static var windowYellow: Color = Color(red: 1, green: 0.74, blue: 0.18)
 }
 
 struct NoteEditor: View {
@@ -287,7 +377,8 @@ struct NoteEditor: View {
     @State private var position: CodeEditor.Position = CodeEditor.Position()
     @State private var messages: Set<TextLocated<Message>> = Set()
     @Binding var selection: AttributedTextSelection
-    @State var alignment: Alignment = .topTrailing
+    @AppStorage("Notes.AlignmentStore") var savedAlignment = TextEditingToolbar.topTrailing.description
+    @State var alignment: Alignment =  TextEditingToolbar.topTrailing.value
     @Environment(\.fontResolutionContext) var fontResolutionContext
     @State var bold = false
     @State var italic = false
@@ -298,7 +389,7 @@ struct NoteEditor: View {
         VStack {
             if note.language.config == .none {
                 TextEditor(text: $note.text, selection: $selection)
-                    .background(.ultraThinMaterial)
+                    .background(.ultraThickMaterial)
             } else {
                 CodeEditor(text: $note.text.string, position: $position, messages: $messages, language: $note.language.config.wrappedValue)
                     .environment(\.codeEditorTheme, colorScheme == .dark ? Theme.defaultDark : Theme.defaultLight)
@@ -402,6 +493,27 @@ struct NoteEditor: View {
         .onChange(of: selection) {
             checkAttributes()
         }
+        .onChange(of: alignment) {
+            withAnimation() {
+                if savedAlignment != TextEditingToolbar(from: alignment).description {
+                    savedAlignment = TextEditingToolbar(from: alignment).description
+                }
+            }
+        }
+        .onChange(of: savedAlignment) {
+            withAnimation() {
+                if savedAlignment != TextEditingToolbar(from: alignment).description {
+                    alignment = TextEditingToolbar.allCases.first(where: { $0.description == savedAlignment })?.value ?? .topTrailing
+                }
+            }
+        }
+        .onAppear {
+            withAnimation() {
+                if savedAlignment != TextEditingToolbar(from: alignment).description {
+                    alignment = TextEditingToolbar.allCases.first(where: { $0.description == savedAlignment })?.value ?? .topTrailing
+                }
+            }
+        }
     }
     func checkAttributes() {
         DispatchQueue.main.async {
@@ -474,7 +586,7 @@ struct NoteEditor: View {
             }
         }
     }
-    enum TextEditingToolbar: Hashable, CaseIterable {
+    enum TextEditingToolbar: Hashable, CaseIterable, Codable {
         init(from alignment: Alignment) {
             switch alignment {
             case .topLeading:
@@ -543,18 +655,20 @@ struct NotePrompt {
 }
 
 struct LanguagePicker: View {
-    let title: String
+    var title: String
+    var systemImage: String
     @Binding var language: LanguageConfiguration
     
-    init(_ title: String, selection: Binding<LanguageConfiguration>) {
+    init(_ title: String, systemImage: String? = nil, selection: Binding<LanguageConfiguration>) {
         self.title = title
         self._language = selection
+        self.systemImage = systemImage ?? "chevron.down"
     }
     var body: some View {
         CustomPicker(label: {
             HStack {
                 Text(language.name)
-                Image(systemName: "chevron.down")
+                Image(systemName: systemImage)
             }
             .bold()
             .foregroundStyle(.gray)
@@ -580,14 +694,13 @@ struct CustomPicker<Selection, Label: View>: View {
     var body: some View {
         Menu(content: {
             ForEach(pickFrom) { item in
-                Button(action: {
-                    selection = item.item
-                }) {
-                    HStack {
-                        if comparableSelection?.name == item.name {
-                            Image(systemName: "checkmark")
-                        }
-                        Text(item.name)
+                if comparableSelection?.name == item.name {
+                    Button(item.name, systemImage: "checkmark") {
+                        selection = item.item
+                    }
+                } else {
+                    Button(item.name) {
+                        selection = item.item
                     }
                 }
             }

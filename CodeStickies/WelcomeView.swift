@@ -278,6 +278,21 @@ struct RecentFileView: View {
                 exportAction(note)
             }
         }
+        .touchBar {
+            HStack {
+                Button("Delete", systemImage: "trash") {
+                    if confirm("Are you sure you want to delete \"\(note.title ?? "Untitled Note")\"", description: "This action cannot be undone") {
+                        dismissWindow(id: "note", value: note.id)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.10) {
+                            NotesManager.shared.deleteNote(with: note.id)
+                        }
+                    }
+                }
+                Button("Export", systemImage: "square.and.arrow.up") {
+                    exportAction(note)
+                }
+            }
+        }
     }
 }
 
@@ -299,5 +314,25 @@ public extension NSApplication {
     var currentAppVersion: String {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
         return appVersion
+    }
+}
+
+public extension View {
+    func glassEffect<ShapeType: Shape>(_ glass: Glass = .regular, in shape: ShapeType, isEnabled: Bool) -> some View {
+        modifier(GlassEffectInBeta3(glass: glass, shape: shape, isEnabled: isEnabled))
+    }
+
+}
+
+struct GlassEffectInBeta3<ShapeType: Shape>: ViewModifier {
+    var glass: Glass = .regular
+    var shape: ShapeType
+    var isEnabled: Bool = true
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.glassEffect(.regular.tint(.accentColor), in: shape)
+        } else {
+            content
+        }
     }
 }

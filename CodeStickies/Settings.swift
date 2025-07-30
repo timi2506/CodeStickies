@@ -6,6 +6,10 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             TabView {
+                general
+                    .tabItem {
+                        Label("General", systemImage: "gear")
+                    }
                 backups
                     .tabItem {
                         Label("Backups", systemImage: "cloud")
@@ -23,7 +27,7 @@ struct SettingsView: View {
     @State var timeInterval: TimeInterval = 3600
     var backups: some View {
         Form {
-            Section("General") {
+            Section("Shared") {
                 Picker("Time Interval", selection: $backupScheduler.timeInterval) {
                     Text("15 minutes").tag(TimeInterval(900))
                     Text("30 minutes").tag(TimeInterval(1800))
@@ -68,6 +72,61 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+    }
+    @AppStorage("noteCornerRadius") var windowCornerRadius: Int = 15
+    @AppStorage("compactMenu") var compactMenu = false
+    @AppStorage("alternativeWindowButtons") var alternativeWindowButtons = false
+
+    var general: some View {
+        Form {
+            Section("Notes") {
+                HStack {
+                    Slider(value: Binding(
+                        get: { CGFloat(windowCornerRadius) },
+                        set: { windowCornerRadius = Int($0) }
+                    ), in: 0...35, step: 1, label: {
+                        Text("Window Corner Radius")
+                    })
+                    Text(windowCornerRadius.formatted())
+                        .frame(width: 25)
+                }
+                Toggle("Compact Button Menu", isOn: $compactMenu)
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Window Button Appearance")
+                        Spacer()
+                    }
+                    Spacer()
+                    Image("alternative-window-buttons.on")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 50)
+                        .padding(2.5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(!alternativeWindowButtons ? Color.accentColor : Color.clear, lineWidth: 3)
+                        )
+                        .onTapGesture {
+                            alternativeWindowButtons = false
+                        }
+                    
+                    Image("alternative-window-buttons.off")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 50)
+                        .padding(2.5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(alternativeWindowButtons ? Color.accentColor : Color.clear, lineWidth: 3)
+                        )
+                        .onTapGesture {
+                            alternativeWindowButtons = true
+                        }
+                }
+            }
+        }
+        .formStyle(.grouped)
+
     }
 }
 
