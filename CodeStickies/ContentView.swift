@@ -86,7 +86,7 @@ struct ContentView: View {
                                                 }
                                                 do {
                                                     for try await chunk in session {
-                                                        note = Note(id: note.id, text: AttributedString(chunk.text ?? ""), title: note.title, language: note.language)
+                                                        note = Note(id: note.id, text: AttributedString(chunk.content.text ?? ""), title: note.title, language: note.language)
                                                     }
                                                     aiState = .finished
                                                 } catch {

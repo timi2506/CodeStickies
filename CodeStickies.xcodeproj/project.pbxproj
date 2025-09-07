@@ -60,6 +60,7 @@
 
 /* Begin PBXFileReference section */
 		8D14693A2DD7CD5500750EEA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		8D262D392E3CF2CF00A6233B /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
 		8D5708CE2DD7804E00C28B39 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		8D5709102DD7844900C28B39 /* StickiesPreviewExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StickiesPreviewExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D57092B2DD7947800C28B39 /* StickiesSpotlightExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StickiesSpotlightExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,6 +94,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		8D262D3C2E3CF2CF00A6233B /* StickiesThumbnailExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = StickiesThumbnailExtension;
+			sourceTree = "<group>";
+		};
 		8D5709122DD7844900C28B39 /* StickiesPreviewExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -155,6 +161,7 @@
 				8D5708CE2DD7804E00C28B39 /* Quartz.framework */,
 				8D5709412DD79B2C00C28B39 /* SwiftUI.framework */,
 				8D14693A2DD7CD5500750EEA /* Cocoa.framework */,
+				8D262D392E3CF2CF00A6233B /* QuickLookThumbnailing.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -165,6 +172,7 @@
 				8DAFA1392DD5FD5100AC0300 /* CodeStickies */,
 				8D5709122DD7844900C28B39 /* StickiesPreviewExtension */,
 				8D57092C2DD7947800C28B39 /* StickiesSpotlightExtension */,
+				8D262D3C2E3CF2CF00A6233B /* StickiesThumbnailExtension */,
 				8D5708CD2DD7804E00C28B39 /* Frameworks */,
 				8DAFA1382DD5FD5100AC0300 /* Products */,
 			);
