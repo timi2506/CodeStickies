@@ -185,20 +185,25 @@ struct ContentView: View {
         
     }
     @State var window: NSWindow?
+    @AppStorage("nativeMinimize") var nativeMinimize = false
     func toggleMinimize(size: CGSize? = nil) {
-        if minimized {
-            resizing = true
-            resizeHeight = size?.height ?? 100
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                minimized = false
-                resizing = false
-            }
+        if nativeMinimize {
+            window?.miniaturize(nil)
         } else {
-            resizing = true
-            resizeHeight = 0
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                minimized = true
-                resizing = false
+            if minimized {
+                resizing = true
+                resizeHeight = size?.height ?? 100
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    minimized = false
+                    resizing = false
+                }
+            } else {
+                resizing = true
+                resizeHeight = 0
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    minimized = true
+                    resizing = false
+                }
             }
         }
     }

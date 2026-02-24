@@ -1,7 +1,7 @@
 import SwiftUI
-
 struct SettingsView: View {
     @AppStorage("showInMenuBar") var showInMenuBar = true
+    @AppStorage("nativeMinimize") var nativeMinimize = false
 
     var body: some View {
         NavigationStack {
@@ -91,6 +91,7 @@ struct SettingsView: View {
                         .frame(width: 25)
                 }
                 Toggle("Compact Button Menu", isOn: $compactMenu)
+                Toggle("Use Native Window Minimizing", isOn: $nativeMinimize)
                 HStack {
                     VStack(alignment: .leading) {
                         Text("Window Button Appearance")

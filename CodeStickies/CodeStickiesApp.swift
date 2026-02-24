@@ -537,6 +537,7 @@ extension View {
         background(WindowAccessor(callback: callback))
     }
 }
+
 import AppKit
 import ObjectiveC.runtime
 
